@@ -44,24 +44,12 @@ The system compares student performance against predefined benchmarks to identif
 - **APIs:** REST APIs
 - **Tools:** Visual Studio Code, Git, GitHub
 
-## Database
-
-PostgreSQL stores student profiles, academic records, technical skills, projects, assessment results, skill gaps, and recommendations. Analytical views support progress tracking and administrative reporting.
-
 ## Results
 
 The project includes a relational database structure, assessment scoring framework, readiness classifications, sample assessment records, skill-gap storage, and analytical views for student and department-level insights.
 
-## Installation
-
-```bash
-git clone https://github.com/amisha13mahajan09/CATALYST.git
-cd CATALYST
-```
-
-Configure PostgreSQL and install the required dependencies according to the project setup instructions.
 
 ## Author
 
-**Amisha Sarwate**
+**Amisha Mahajan**
 
