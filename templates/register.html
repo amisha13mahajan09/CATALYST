@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}CATALYST{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1 class="auth-title">Student <span class="gradient-text">Registration</span></h1>
+      <p class="auth-subtitle">Create your account to evaluate your placement readiness score</p>
+    </div>
+
+    <form id="student-registration-form" action="{{ url_for('register') }}" method="POST" novalidate>
+      
+      <!-- Full Name -->
+      <div class="form-group">
+        <label for="full_name" class="form-label">Full Name</label>
+        <input 
+          type="text" 
+          id="full_name" 
+          name="full_name" 
+          class="form-control" 
+          placeholder=""
+          value="{{ form_data.full_name if form_data else '' }}"
+        >
+        <div class="field-error" id="err-full_name" style="display:none; color:#f87171; font-size:0.83rem; margin-top:4px;"></div>
+      </div>
+
+      <!-- Username -->
+      <div class="form-group">
+        <label for="username" class="form-label">Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username" 
+          class="form-control" 
+          placeholder=""
+          value="{{ form_data.username if form_data else '' }}"
+        >
+        <div class="field-error" id="err-username" style="display:none; color:#f87171; font-size:0.83rem; margin-top:4px;"></div>
+      </div>
+
+      <!-- Email & PRN (Row) -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="form-control" 
+            placeholder=""
+            value="{{ form_data.email if form_data else '' }}"
+          >
+          <div class="field-error" id="err-email" style="display:none; color:#f87171; font-size:0.83rem; margin-top:4px;"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="prn" class="form-label">PRN (Student ID)</label>
+          <input 
+            type="text" 
+            id="prn" 
+            name="prn" 
+            class="form-control" 
+            placeholder=""
+            value="{{ form_data.prn if form_data else '' }}"
+          >
+          <div class="field-error" id="err-prn" style="display:none; color:#f87171; font-size:0.83rem; margin-top:4px;"></div>
+        </div>
+      </div>
+
+      <!-- Password & Confirm Password (Row) -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <div class="password-wrapper" style="position:relative;">
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-control" 
+              placeholder=""
+            >
+            <button type="button" class="pwd-toggle" onclick="togglePassword('password', this)" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text-muted); padding:0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+          <div class="field-error" id="err-password" style="display:none; color:#f87171; font-size:0.83rem; margin-top:4px;"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password" class="form-label">Confirm Password</label>
+          <div class="password-wrapper" style="position:relative;">
+            <input 
+              type="password" 
+              id="confirm_password" 
+              name="confirm_password" 
+              class="form-control" 
+              placeholder=""
+            >
+            <button type="button" class="pwd-toggle" onclick="togglePassword('confirm_password', this)" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text-muted); padding:0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+          <div class="field-error" id="err-confirm_password" style="display:none; color:#f87171; font-size:0.83rem; margin-top:4px;"></div>
+        </div>
+      </div>
+      <div id="password-match-error" style="color: #f87171; font-size: 0.85rem; margin-top: -10px; margin-bottom: 15px; display: none;"></div>
+
+      <!-- College -->
+      <div class="form-group">
+        <label for="college" class="form-label">College Name</label>
+        <input 
+          type="text" 
+          id="college" 
+          name="college" 
+          class="form-control" 
+          placeholder=""
+          value="{{ form_data.college if form_data else '' }}"
+        >
+        <div class="field-error" id="err-college" style="display:none; color:#f87171; font-size:0.83rem; margin-top:4px;"></div>
+      </div>
+
+      <!-- Department (Dropdown) -->
+      <div class="form-group">
+        <label for="department_id" class="form-label">Department</label>
+        <select id="department_id" name="department_id" class="form-control">
+          <option value="" disabled {{ 'selected' if not form_data else '' }}>Select</option>
+          {% for dept in departments %}
+            <option value="{{ dept.department_id }}" {{ 'selected' if form_data and form_data.department_id == dept.department_id|string else '' }}>
+              {{ dept.department_name }}
+            </option>
+          {% endfor %}
+        </select>
+        <div class="field-error" id="err-department_id" style="display:none; color:#f87171; font-size:0.83rem; margin-top:4px;"></div>
+      </div>
+
+      <!-- Current Year & Semester & Graduation Year (Row) -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="year_sem" class="form-label">Current Year & Semester</label>
+          <select id="year_sem" name="year_sem" class="form-control">
+            <option value="" disabled {{ 'selected' if not form_data else '' }}>Select</option>
+            <option value="FE_1" {{ 'selected' if form_data and form_data.year_sem == 'FE_1' else '' }}>FE Semester 1</option>
+            <option value="FE_2" {{ 'selected' if form_data and form_data.year_sem == 'FE_2' else '' }}>FE Semester 2</option>
+            <option value="SE_3" {{ 'selected' if form_data and form_data.year_sem == 'SE_3' else '' }}>SE Semester 3</option>
+            <option value="SE_4" {{ 'selected' if form_data and form_data.year_sem == 'SE_4' else '' }}>SE Semester 4</option>
+            <option value="TE_5" {{ 'selected' if form_data and form_data.year_sem == 'TE_5' else '' }}>TE Semester 5</option>
+            <option value="TE_6" {{ 'selected' if form_data and form_data.year_sem == 'TE_6' else '' }}>TE Semester 6</option>
+            <option value="BE_7" {{ 'selected' if form_data and form_data.year_sem == 'BE_7' else '' }}>BE Semester 7</option>
+            <option value="BE_8" {{ 'selected' if form_data and form_data.year_sem == 'BE_8' else '' }}>BE Semester 8</option>
+          </select>
+          <div class="field-error" id="err-year_sem" style="display:none; color:#f87171; font-size:0.83rem; margin-top:4px;"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="graduation_year" class="form-label">Graduation Year</label>
+          <select id="graduation_year" name="graduation_year" class="form-control">
+            <option value="" disabled {{ 'selected' if not form_data else '' }}>Select</option>
+            {% for yr in [2026, 2027, 2028, 2029, 2030] %}
+              <option value="{{ yr }}" {{ 'selected' if form_data and form_data.graduation_year == yr|string else '' }}>{{ yr }}</option>
+            {% endfor %}
+          </select>
+          <div class="field-error" id="err-graduation_year" style="display:none; color:#f87171; font-size:0.83rem; margin-top:4px;"></div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="button" class="btn btn-primary btn-full" style="margin-top: 10px;" onclick="validateAndSubmitRegister()">
+        Complete Registration &rarr;
+      </button>
+
+      <div class="form-footer">
+        Already registered? <a href="{{ url_for('login') }}">Login to your account</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function togglePassword(fieldId, btn) {
+  const input = document.getElementById(fieldId);
+  const icon = btn.querySelector('.eye-icon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+  } else {
+    input.type = 'password';
+    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+  }
+}
+
+function showFieldError(id, msg) {
+  const el = document.getElementById('err-' + id);
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+  const input = document.getElementById(id);
+  if (input) input.style.borderColor = '#f87171';
+}
+
+function clearFieldError(id) {
+  const el = document.getElementById('err-' + id);
+  if (el) { el.textContent = ''; el.style.display = 'none'; }
+  const input = document.getElementById(id);
+  if (input) input.style.borderColor = '';
+}
+
+function validateAndSubmitRegister() {
+  // Clear all errors first
+  const fields = ['full_name', 'username', 'email', 'prn', 'password', 'confirm_password', 'college', 'department_id', 'year_sem', 'graduation_year'];
+  fields.forEach(f => clearFieldError(f));
+  document.getElementById('password-match-error').style.display = 'none';
+
+  let valid = true;
+
+  const full_name = document.getElementById('full_name').value.trim();
+  const username = document.getElementById('username').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const prn = document.getElementById('prn').value.trim();
+  const password = document.getElementById('password').value;
+  const confirm_password = document.getElementById('confirm_password').value;
+  const college = document.getElementById('college').value.trim();
+  const department_id = document.getElementById('department_id').value;
+  const year_sem = document.getElementById('year_sem').value;
+  const graduation_year = document.getElementById('graduation_year').value;
+
+  if (!full_name) { showFieldError('full_name', 'Please enter your full name.'); valid = false; }
+  if (!username) { showFieldError('username', 'Please enter a username.'); valid = false; }
+  if (!email) { showFieldError('email', 'Please enter your email address.'); valid = false; }
+  if (!prn) { showFieldError('prn', 'Please enter your PRN.'); valid = false; }
+  if (!password) { showFieldError('password', 'Please enter a password.'); valid = false; }
+  if (!confirm_password) { showFieldError('confirm_password', 'Please confirm your password.'); valid = false; }
+  if (password && confirm_password && password !== confirm_password) {
+    const matchEl = document.getElementById('password-match-error');
+    matchEl.textContent = 'Passwords do not match. Please re-enter.';
+    matchEl.style.display = 'block';
+    valid = false;
+  }
+  if (!college) { showFieldError('college', 'Please enter your college name.'); valid = false; }
+  if (!department_id) { showFieldError('department_id', 'Please select your department.'); valid = false; }
+  if (!year_sem) { showFieldError('year_sem', 'Please select your current year & semester.'); valid = false; }
+  if (!graduation_year) { showFieldError('graduation_year', 'Please select your graduation year.'); valid = false; }
+
+  if (valid) {
+    document.getElementById('student-registration-form').submit();
+  }
+}
+</script>
+{% endblock %}

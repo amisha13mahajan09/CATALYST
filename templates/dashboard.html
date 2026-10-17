@@ -1,0 +1,2309 @@
+{% extends "base.html" %}
+
+{% block title %}CATALYST{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="dashboard-container container">
+
+  {% if student %}
+    <!-- Top Header Greeting & Readiness Score Summary Banner -->
+    <div class="welcome-score-header">
+      <div class="welcome-text-group">
+        <h1 class="student-greeting-title">
+          Welcome, <span class="gradient-text">{{ student.full_name }}</span>!
+        </h1>
+        <p class="student-meta-sub">
+          📌 PRN: <strong>{{ student.prn }}</strong> | 🏛️ {{ student.college }} | 🎓 {{ student.department_name }} ({{ student.current_year }} - Sem {{ student.current_semester }})
+        </p>
+      </div>
+
+      <div class="readiness-score-box">
+        <div class="score-header-label">Placement Readiness</div>
+        {% if latest_assessment %}
+          <div class="score-number-display">{{ latest_assessment.total_score }} / 100</div>
+          <div class="score-class-badge badge-{{ latest_assessment.classification | lower | replace(' ', '-') }}">
+            {{ latest_assessment.classification }}
+          </div>
+        {% else %}
+          <div class="score-number-display score-uncalculated">0 / 100</div>
+          <div class="score-uncalculated-msg">
+            let's calculate your placement readiness! Please enter data below
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Top Horizontal Navigation Bar (Sectioning) -->
+    <nav class="horizontal-nav-tabs">
+      <button class="nav-tab-btn active" onclick="switchSection('dashboard')" id="tab-btn-dashboard">
+        <span class="tab-icon">📋</span> Dashboard
+      </button>
+      <button class="nav-tab-btn" onclick="switchSection('result')" id="tab-btn-result">
+        <span class="tab-icon">📊</span> Result
+      </button>
+      <button class="nav-tab-btn" onclick="switchSection('improvement')" id="tab-btn-improvement">
+        <span class="tab-icon">💡</span> Improvement Plan
+      </button>
+    </nav>
+
+    <!-- SECTION 1: DASHBOARD (13 INPUT CARDS & SCORE TRIGGER) -->
+    <section id="section-dashboard" class="page-section active-section">
+      <div class="section-intro">
+        <h2>Dashboard Profile Modules</h2>
+        <p>Complete all 13 evaluation modules below to unlock your Placement Readiness Score calculation.</p>
+        <div class="completion-progress-bar-container">
+          <div class="progress-bar-fill" id="progress-bar-fill" style="width: {{ (card_data.cards_completed_count / 13.0) * 100 }}%;"></div>
+        </div>
+        <div class="progress-status-text" id="progress-status-text">
+          Completed <strong>{{ card_data.cards_completed_count }}</strong> of 13 cards
+        </div>
+      </div>
+
+      <!-- 13 Cards Grid -->
+      <div class="cards-grid">
+        
+        <!-- Card 1: Academics -->
+        <div class="module-card {% if card_data.completion.academics %}completed{% endif %}" id="card-academics">
+          <div class="card-header-line">
+            <h3 class="card-title">Academics</h3>
+            <span class="card-status-badge">
+              {% if card_data.completion.academics %}✓ Completed{% else %}Pending{% endif %}
+            </span>
+          </div>
+          <p class="card-subtitle">10th %, 12th %{% if student.current_semester > 1 %}, Semester SGPAs (Sem 1 to {{ student.current_semester - 1 }}){% endif %} & Backlogs</p>
+
+          <div class="card-action-area">
+            {% if card_data.completion.academics %}
+              <button class="btn btn-secondary edit-card-btn" onclick="openModal('modal-academics')">✏️ Edit</button>
+            {% else %}
+              <button class="plus-circle-btn" onclick="openModal('modal-academics')" title="Add Academic Details">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Card 2: Coding Languages -->
+        <div class="module-card {% if card_data.completion.coding_languages %}completed{% endif %}" id="card-coding_languages">
+          <div class="card-header-line">
+            <h3 class="card-title">Coding Languages</h3>
+            <span class="card-status-badge">
+              {% if card_data.completion.coding_languages %}✓ Completed{% else %}Pending{% endif %}
+            </span>
+          </div>
+          <p class="card-subtitle">Programming languages known & proficiency levels</p>
+
+          <div class="card-action-area">
+            {% if card_data.completion.coding_languages %}
+              <button class="btn btn-secondary edit-card-btn" onclick="openModal('modal-coding_languages')">✏️ Edit</button>
+            {% else %}
+              <button class="plus-circle-btn" onclick="openModal('modal-coding_languages')" title="Add Coding Languages">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Card 3: Technical Skills -->
+        <div class="module-card {% if card_data.completion.technical_skills %}completed{% endif %}" id="card-technical_skills">
+          <div class="card-header-line">
+            <h3 class="card-title">Technical Skills</h3>
+            <span class="card-status-badge">
+              {% if card_data.completion.technical_skills %}✓ Completed{% else %}Pending{% endif %}
+            </span>
+          </div>
+          <p class="card-subtitle">Core engineering technical domain skill selection (AI, ML, Web, Cloud, etc.)</p>
+
+          <div class="card-action-area">
+            {% if card_data.completion.technical_skills %}
+              <button class="btn btn-secondary edit-card-btn" onclick="openModal('modal-technical_skills')">✏️ Edit</button>
+            {% else %}
+              <button class="plus-circle-btn" onclick="openModal('modal-technical_skills')" title="Add Technical Skills">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Card 4: Coding Platforms -->
+        <div class="module-card {% if card_data.completion.coding_platforms %}completed{% endif %}" id="card-coding_platforms">
+          <div class="card-header-line">
+            <h3 class="card-title">Coding Platforms</h3>
+            <span class="card-status-badge">
+              {% if card_data.completion.coding_platforms %}✓ Completed{% else %}Pending{% endif %}
+            </span>
+          </div>
+          <p class="card-subtitle">LeetCode, HackerRank, CodeChef profiles & questions solved</p>
+
+          <div class="card-action-area">
+            {% if card_data.completion.coding_platforms %}
+              <button class="btn btn-secondary edit-card-btn" onclick="openModal('modal-coding_platforms')">✏️ Edit</button>
+            {% else %}
+              <button class="plus-circle-btn" onclick="openModal('modal-coding_platforms')" title="Add Coding Platforms">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Card 5: LinkedIn -->
+        <div class="module-card {% if card_data.completion.linkedin %}completed{% endif %}" id="card-linkedin">
+          <div class="card-header-line">
+            <h3 class="card-title">LinkedIn</h3>
+            <span class="card-status-badge">
+              {% if card_data.completion.linkedin %}✓ Completed{% else %}Pending{% endif %}
+            </span>
+          </div>
+          <p class="card-subtitle">Academic LinkedIn usage, profile URL & post count</p>
+
+          <div class="card-action-area">
+            {% if card_data.completion.linkedin %}
+              <button class="btn btn-secondary edit-card-btn" onclick="openModal('modal-linkedin')">✏️ Edit</button>
+            {% else %}
+              <button class="plus-circle-btn" onclick="openModal('modal-linkedin')" title="Add LinkedIn Info">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Card 6: Research Papers -->
+        <div class="module-card {% if card_data.completion.research_papers %}completed{% endif %}" id="card-research_papers">
+          <div class="card-header-line">
+            <h3 class="card-title">Research Papers</h3>
+            <span class="card-status-badge">
+              {% if card_data.completion.research_papers %}✓ Completed{% else %}Pending{% endif %}
+            </span>
+          </div>
+          <p class="card-subtitle">Academic research papers published & PDF/image proofs</p>
+
+          <div class="card-action-area">
+            {% if card_data.completion.research_papers %}
+              <button class="btn btn-secondary edit-card-btn" onclick="openModal('modal-research_papers')">✏️ Edit</button>
+            {% else %}
+              <button class="plus-circle-btn" onclick="openModal('modal-research_papers')" title="Add Research Papers">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Card 7: Internships -->
+        <div class="module-card {% if card_data.completion.internships %}completed{% endif %}" id="card-internships">
+          <div class="card-header-line">
+            <h3 class="card-title">Internships</h3>
+            <span class="card-status-badge">
+              {% if card_data.completion.internships %}✓ Completed{% else %}Pending{% endif %}
+            </span>
+          </div>
+          <p class="card-subtitle">Previous internship experience & offer letters</p>
+
+          <div class="card-action-area">
+            {% if card_data.completion.internships %}
+              <button class="btn btn-secondary edit-card-btn" onclick="openModal('modal-internships')">✏️ Edit</button>
+            {% else %}
+              <button class="plus-circle-btn" onclick="openModal('modal-internships')" title="Add Internships">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Card 8: Hackathons -->
+        <div class="module-card {% if card_data.completion.hackathons %}completed{% endif %}" id="card-hackathons">
+          <div class="card-header-line">
+            <h3 class="card-title">Hackathons</h3>
+            <span class="card-status-badge">
+              {% if card_data.completion.hackathons %}✓ Completed{% else %}Pending{% endif %}
+            </span>
+          </div>
+          <p class="card-subtitle">Hackathon participations & certificates</p>
+
+          <div class="card-action-area">
+            {% if card_data.completion.hackathons %}
+              <button class="btn btn-secondary edit-card-btn" onclick="openModal('modal-hackathons')">✏️ Edit</button>
+            {% else %}
+              <button class="plus-circle-btn" onclick="openModal('modal-hackathons')" title="Add Hackathons">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Card 9: Courses & Certificates -->
+        <div class="module-card {% if card_data.completion.courses_certificates %}completed{% endif %}" id="card-courses_certificates">
+          <div class="card-header-line">
+            <h3 class="card-title">Courses and Certificates</h3>
+            <span class="card-status-badge">
+              {% if card_data.completion.courses_certificates %}✓ Completed{% else %}Pending{% endif %}
+            </span>
+          </div>
+          <p class="card-subtitle">Certified technical courses & completion certificates</p>
+
+          <div class="card-action-area">
+            {% if card_data.completion.courses_certificates %}
+              <button class="btn btn-secondary edit-card-btn" onclick="openModal('modal-courses_certificates')">✏️ Edit</button>
+            {% else %}
+              <button class="plus-circle-btn" onclick="openModal('modal-courses_certificates')" title="Add Courses & Certificates">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Card 10: Aptitude -->
+        <div class="module-card {% if card_data.completion.aptitude %}completed{% endif %}" id="card-aptitude">
+          <div class="card-header-line">
+            <h3 class="card-title">Aptitude</h3>
+            <span class="card-status-badge">
+              {% if card_data.completion.aptitude %}✓ Completed{% else %}Pending{% endif %}
+            </span>
+          </div>
+          <p class="card-subtitle">Quant, Logical Reasoning, Verbal Ability & Data Interpretation</p>
+
+          <div class="card-action-area">
+            {% if card_data.completion.aptitude %}
+              <button class="btn btn-secondary edit-card-btn" onclick="openModal('modal-aptitude')">✏️ Edit</button>
+            {% else %}
+              <button class="plus-circle-btn" onclick="openModal('modal-aptitude')" title="Add Aptitude Ratings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Card 11: Communication Skills -->
+        <div class="module-card {% if card_data.completion.communication %}completed{% endif %}" id="card-communication">
+          <div class="card-header-line">
+            <h3 class="card-title">Communication Skills</h3>
+            <span class="card-status-badge">
+              {% if card_data.completion.communication %}✓ Completed{% else %}Pending{% endif %}
+            </span>
+          </div>
+          <p class="card-subtitle">Group Discussion, Conversation, Interview Speaking & Grammar</p>
+
+          <div class="card-action-area">
+            {% if card_data.completion.communication %}
+              <button class="btn btn-secondary edit-card-btn" onclick="openModal('modal-communication')">✏️ Edit</button>
+            {% else %}
+              <button class="plus-circle-btn" onclick="openModal('modal-communication')" title="Add Communication Ratings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Card 12: Foreign Languages -->
+        <div class="module-card {% if card_data.completion.foreign_languages %}completed{% endif %}" id="card-foreign_languages">
+          <div class="card-header-line">
+            <h3 class="card-title">Foreign Languages</h3>
+            <span class="card-status-badge">
+              {% if card_data.completion.foreign_languages %}✓ Completed{% else %}Pending{% endif %}
+            </span>
+          </div>
+          <p class="card-subtitle">International languages spoken & certified fluency levels</p>
+
+          <div class="card-action-area">
+            {% if card_data.completion.foreign_languages %}
+              <button class="btn btn-secondary edit-card-btn" onclick="openModal('modal-foreign_languages')">✏️ Edit</button>
+            {% else %}
+              <button class="plus-circle-btn" onclick="openModal('modal-foreign_languages')" title="Add Foreign Languages">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Card 13: Projects -->
+        <div class="module-card {% if card_data.completion.projects %}completed{% endif %}" id="card-projects">
+          <div class="card-header-line">
+            <h3 class="card-title">Projects</h3>
+            <span class="card-status-badge">
+              {% if card_data.completion.projects %}✓ Completed{% else %}Pending{% endif %}
+            </span>
+          </div>
+          <p class="card-subtitle">GitHub links, project descriptions & programming tech stack used</p>
+
+          <div class="card-action-area">
+            {% if card_data.completion.projects %}
+              <button class="btn btn-secondary edit-card-btn" onclick="openModal('modal-projects')">✏️ Edit</button>
+            {% else %}
+              <button class="plus-circle-btn" onclick="openModal('modal-projects')" title="Add Projects">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+      </div> <!-- /cards-grid -->
+
+      <!-- Calculate Score Action Bar -->
+      <div class="calculate-score-wrapper">
+        <button
+          id="btn-calculate-score"
+          class="btn btn-primary calculate-score-btn"
+          {% if not card_data.all_cards_completed %}disabled{% endif %}
+          onclick="triggerScoreCalculation()"
+        >
+          🚀 Calculate Placement Readiness Score
+        </button>
+        {% if not card_data.all_cards_completed %}
+          <div class="calculate-disabled-hint">
+            ⚠️ Please fill all 13 cards above to enable readiness score calculation.
+          </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- SECTION 2: RESULT SECTION -->
+    <section id="section-result" class="page-section">
+      {% if latest_assessment %}
+        <div class="result-hero-banner">
+          <div class="result-hero-text">
+            <h2>Your Placement Readiness Evaluation Result</h2>
+            <div class="result-hero-score">{{ latest_assessment.total_score }} / 100</div>
+            <div class="score-class-badge badge-{{ latest_assessment.classification | lower | replace(' ', '-') }}">
+              {{ latest_assessment.classification }}
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <button class="btn btn-secondary" onclick="openModal('modal-score-explanation')">
+              ❓ How the score is calculated
+            </button>
+            <button class="btn btn-primary" onclick="switchSection('improvement')">
+              📈 Not satisfied with your result? View improvement plan
+            </button>
+          </div>
+        </div>
+
+        <!-- Category Breakdown Table -->
+        <div class="result-card">
+          <h3 class="result-card-heading">13-Category Evaluation Breakdown</h3>
+          <div class="table-responsive">
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Weightage</th>
+                  <th>Points Scored</th>
+                  <th>Performance</th>
+                </tr>
+              </thead>
+              <tbody id="result-breakdown-tbody">
+                {% for cs in latest_assessment.category_scores %}
+                  {% if 'hire' not in cs.category_name|lower and 'pitch' not in cs.category_name|lower %}
+                  <tr>
+                    <td><strong>{{ cs.category_name }}</strong></td>
+                    <td>{% if cs.category_name == 'Projects' %}20{% else %}{{ cs.weightage }}{% endif %}%</td>
+                    <td><strong>{{ cs.category_score }}</strong> / {% if cs.category_name == 'Projects' %}20{% else %}{{ cs.maximum_score }}{% endif %}</td>
+                    <td>
+                      <div class="mini-progress-bar">
+                        <div class="mini-bar-fill" style="width: {{ (cs.category_score / (20.0 if cs.category_name == 'Projects' else cs.maximum_score)) * 100 }}%;"></div>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Result Visualizations / -->
+        <div class="charts-grid-two">
+          <div class="chart-card">
+            <h3>Category Points vs Weightage</h3>
+            <div class="chart-container">
+              {% if student_charts and student_charts.chart_student_categories %}
+                <img src="data:image/png;base64,{{ student_charts.chart_student_categories }}" alt="Category Score Chart">
+              {% else %}
+                <canvas id="chart-category-bar"></canvas>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Score Weightage Distribution</h3>
+            <div class="chart-container">
+              {% if student_charts and student_charts.chart_student_donut %}
+                <img src="data:image/png;base64,{{ student_charts.chart_student_donut }}" alt="Score Weightage Chart">
+              {% else %}
+                <canvas id="chart-weightage-donut"></canvas>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="empty-state-card">
+          <div class="empty-state-icon">📊</div>
+          <h3>No Placement Assessment Conducted Yet</h3>
+          <p>Please complete all 13 cards on the Dashboard and click <strong>Calculate Placement Readiness Score</strong> to view your detailed result breakdown and charts.</p>
+          <button class="btn btn-primary" onclick="switchSection('dashboard')">Go to Dashboard</button>
+        </div>
+      {% endif %}
+    </section>
+
+    <!-- SECTION 3: IMPROVEMENT SECTION -->
+    <section id="section-improvement" class="page-section">
+      {% if latest_assessment %}
+        <div class="improvement-header">
+          <h2>Placement Improvement Plan & Benchmark Roadmap</h2>
+          <p>Detailed comparison of your current profile against ideal placement benchmarks and targeted action steps.</p>
+        </div>
+
+        <!-- Comparison Table: User Data vs Ideal Benchmark Data -->
+        <div class="result-card">
+          <h3 class="result-card-heading">1. Ideal Benchmark vs User Profile Comparison</h3>
+          <div class="table-responsive">
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Your Current Profile</th>
+                  <th>Placement Ideal Benchmark</th>
+                  <th style="min-width: 130px;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="comparison-tbody">
+                {% for item in latest_assessment.ideal_comparison %}
+                  {% if 'hire' not in item.category_name|lower and 'pitch' not in item.category_name|lower %}
+                  <tr>
+                    <td><strong>{{ item.category_name }}</strong></td>
+                    <td>{{ item.user_data }}</td>
+                    <td>{{ item.ideal_data }}</td>
+                    <td>
+                      <span class="status-pill status-{{ item.status | lower | replace(' ', '-') }}">
+                        {{ item.status }}
+                      </span>
+                    </td>
+                  </tr>
+                  {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Gap Analysis & Actionable Smart Suggestions Cards -->
+        <div class="result-card">
+          <h3 class="result-card-heading">2. Skill Gap Identification & Actionable Recommendations</h3>
+          <div class="gap-cards-grid">
+            {% for gap in latest_assessment.skill_gaps %}
+              {% if 'hire' not in gap.category_name|lower and 'pitch' not in gap.category_name|lower %}
+              <div class="gap-split-card">
+                <div class="gap-card-category">
+                  <span class="prio-tag prio-{{ gap.priority | lower }}">{{ gap.priority }}</span>
+                  <span class="gap-card-cat-label">{{ gap.category_name }}</span>
+                </div>
+                <div class="gap-card-top">
+                  <div class="gap-card-half-label">&#9888; Gap Identified</div>
+                  <p class="gap-card-text">{{ gap.current_value }}&nbsp;<span class="gap-arrow">&#8594;</span>&nbsp;Target: {{ gap.target_value }}</p>
+                </div>
+                <div class="gap-card-bottom">
+                  <div class="gap-card-half-label">&#10003; Recommendation</div>
+                  <p class="gap-card-text">
+                    {% for rec in latest_assessment.recommendations %}
+                      {% if rec.category_name == gap.category_name %}
+                        {{ rec.recommendation }}
+                      {% endif %}
+                    {% endfor %}
+                  </p>
+                </div>
+              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Progress Tracking Sub-section -->
+        <div class="result-card">
+          <h3 class="result-card-heading">3. Progress Tracking & Assessment History</h3>
+          <p style="color: var(--text-secondary); margin-bottom: 16px;">Record of all placement readiness evaluations taken over time.</p>
+          
+          <div class="history-grid-layout">
+            <div>
+              <h4 style="margin-bottom: 12px;">📋 My Assessments</h4>
+              <div class="table-responsive">
+                <table class="styled-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Score</th>
+                      <th>Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody id="history-tbody">
+                    {% for h in assessment_history %}
+                      <tr>
+                        <td>{{ h.assessment_date }}</td>
+                        <td><strong>{{ h.total_score }} / 100</strong></td>
+                        <td>
+                          <span class="score-class-badge badge-{{ h.classification | lower | replace(' ', '-') }}" style="font-size: 0.75rem; padding: 4px 8px;">
+                            {{ h.classification }}
+                          </span>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Trend Chart -->
+            <div class="chart-card">
+              <h4>Score Improvement Trend</h4>
+              <div class="chart-container" style="display: flex; align-items: center; justify-content: center;">
+                {% if student_charts and student_charts.chart_student_trend %}
+                  <img src="data:image/png;base64,{{ student_charts.chart_student_trend }}" alt="Score Trend Line Chart" style="width: 100%; max-height: 320px; object-fit: contain; border-radius: 8px;">
+                {% else %}
+                  <canvas id="chart-trend-line"></canvas>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      {% else %}
+        <div class="empty-state-card">
+          <div class="empty-state-icon">💡</div>
+          <h3>No Assessment Data for Improvement Plan</h3>
+          <p>Please complete your profile cards on the Dashboard and calculate your readiness score to generate your personalized improvement plan and progress tracking charts.</p>
+          <button class="btn btn-primary" onclick="switchSection('dashboard')">Go to Dashboard</button>
+        </div>
+      {% endif %}
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- MODAL POPUP WINDOWS FOR ALL 13 CARDS -->
+    <!-- ============================================================ -->
+
+    <!-- Modal 1: Academics -->
+    <div class="modal-backdrop" id="modal-academics">
+      <div class="modal-box modal-lg">
+        <div class="modal-header">
+          <h3>Academic Records & Marksheets</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-academics')">&times;</button>
+        </div>
+        <form id="form-academics" onsubmit="submitCardForm(event, 'academics')" enctype="multipart/form-data">
+          <div class="modal-body">
+            <!-- Section 1: 10th & 12th Academic Records -->
+            <div class="modal-white-section">
+              <div class="dynamic-box-title" style="margin-bottom: 14px;">
+                <span class="box-item-number">1</span>
+                <span>Secondary & Higher Secondary Records (10th & 12th)</span>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>10th Std Percentage (%) </label>
+                  <input type="number" step="0.01" min="0" max="100" name="percentage_10th" value="{{ card_data.academics.percentage_10th if card_data.academics else '' }}" required class="form-control">
+                </div>
+                <div class="form-group">
+                  <label>10th Marksheet Upload (Image/PDF) </label>
+                  <div class="single-upload-field">
+                    {% if card_data.academics and card_data.academics.marksheet_10th_path %}
+                      <div class="existing-file-banner">
+                        <span>📄 <strong>{{ card_data.academics.marksheet_10th_path.split('/')[-1] }}</strong></span>
+                        <div class="file-action-buttons">
+                          <a href="/static/{{ card_data.academics.marksheet_10th_path }}" target="_blank" class="btn-file-view">👁️ View</a>
+                          <button type="button" class="btn-file-replace" onclick="toggleFileReplace(this)">🔄 Replace</button>
+                        </div>
+                      </div>
+                      <input type="hidden" name="existing_marksheet_10th" value="{{ card_data.academics.marksheet_10th_path }}">
+                      <div class="file-input-wrapper" style="display: none;">
+                        <div class="file-input-row">
+                          <input type="file" name="marksheet_10th" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                          <button type="button" class="btn-cancel-replace" onclick="cancelFileReplace(this)">✕ Cancel</button>
+                        </div>
+                        <div class="selected-file-preview" style="display: none;"></div>
+                      </div>
+                    {% else %}
+                      <div class="file-input-wrapper">
+                        <input type="file" name="marksheet_10th" accept="image/*,.pdf" required class="form-control" onchange="handleSingleFileSelect(this)">
+                        <div class="selected-file-preview" style="display: none;"></div>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>12th Std Percentage (%) </label>
+                  <input type="number" step="0.01" min="0" max="100" name="percentage_12th" value="{{ card_data.academics.percentage_12th if card_data.academics else '' }}" required class="form-control">
+                </div>
+                <div class="form-group">
+                  <label>12th Marksheet Upload (Image/PDF) </label>
+                  <div class="single-upload-field">
+                    {% if card_data.academics and card_data.academics.marksheet_12th_path %}
+                      <div class="existing-file-banner">
+                        <span>📄 <strong>{{ card_data.academics.marksheet_12th_path.split('/')[-1] }}</strong></span>
+                        <div class="file-action-buttons">
+                          <a href="/static/{{ card_data.academics.marksheet_12th_path }}" target="_blank" class="btn-file-view">👁️ View</a>
+                          <button type="button" class="btn-file-replace" onclick="toggleFileReplace(this)">🔄 Replace</button>
+                        </div>
+                      </div>
+                      <input type="hidden" name="existing_marksheet_12th" value="{{ card_data.academics.marksheet_12th_path }}">
+                      <div class="file-input-wrapper" style="display: none;">
+                        <div class="file-input-row">
+                          <input type="file" name="marksheet_12th" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                          <button type="button" class="btn-cancel-replace" onclick="cancelFileReplace(this)">✕ Cancel</button>
+                        </div>
+                        <div class="selected-file-preview" style="display: none;"></div>
+                      </div>
+                    {% else %}
+                      <div class="file-input-wrapper">
+                        <input type="file" name="marksheet_12th" accept="image/*,.pdf" required class="form-control" onchange="handleSingleFileSelect(this)">
+                        <div class="selected-file-preview" style="display: none;"></div>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 2: Engineering Semester SGPAs -->
+            <div class="modal-white-section">
+              <div class="dynamic-box-title" style="margin-bottom: 14px;">
+                <span class="box-item-number">2</span>
+                <span>Engineering Semester SGPAs & Marksheets{% if student.current_semester > 1 %} (Sem 1 to {{ student.current_semester - 1 }}){% endif %}</span>
+              </div>
+              <input type="hidden" name="existing_marksheet_sems_json" value="{{ card_data.academics.marksheet_sems_json if card_data.academics and card_data.academics.marksheet_sems_json else '' }}">
+
+              {% if student.current_semester > 1 %}
+                {% for s in range(1, student.current_semester) %}
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Semester {{ s }} SGPA (0.0 to 10.0) </label>
+                      <input type="number" step="0.01" min="0" max="10" name="semester_{{ s }}_sgpa" value="{{ card_data.academics['semester_' ~ s ~ '_sgpa'] if card_data.academics else '' }}" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>Sem {{ s }} Marksheet Upload (Image/PDF) </label>
+                      {% set sem_doc = (card_data.academics.sems_marksheets.get(s | string) or card_data.academics.sems_marksheets.get(s)) if (card_data.academics and card_data.academics.sems_marksheets) else None %}
+                      <div class="single-upload-field">
+                        {% if sem_doc %}
+                          <div class="existing-file-banner">
+                            <span>📄 <strong>{{ sem_doc.split('/')[-1] }}</strong></span>
+                            <div class="file-action-buttons">
+                              <a href="/static/{{ sem_doc }}" target="_blank" class="btn-file-view">👁️ View</a>
+                              <button type="button" class="btn-file-replace" onclick="toggleFileReplace(this)">🔄 Replace</button>
+                            </div>
+                          </div>
+                          <input type="hidden" name="existing_marksheet_sem_{{ s }}" value="{{ sem_doc }}">
+                          <div class="file-input-wrapper" style="display: none;">
+                            <div class="file-input-row">
+                              <input type="file" name="marksheet_sem_{{ s }}" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                              <button type="button" class="btn-cancel-replace" onclick="cancelFileReplace(this)">✕ Cancel</button>
+                            </div>
+                            <div class="selected-file-preview" style="display: none;"></div>
+                          </div>
+                        {% else %}
+                          <div class="file-input-wrapper">
+                            <input type="file" name="marksheet_sem_{{ s }}" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                            <div class="selected-file-preview" style="display: none;"></div>
+                          </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 6px 0 0;">
+                  You are currently in Semester 1. Prior college semester SGPAs are not applicable yet.
+                </p>
+              {% endif %}
+            </div>
+
+            <!-- Section 3: Academic Backlogs -->
+            <div class="modal-white-section">
+              <div class="dynamic-box-title" style="margin-bottom: 14px;">
+                <span class="box-item-number">3</span>
+                <span>Academic Backlogs History</span>
+              </div>
+              <div class="form-group">
+                <label>Have you had any previous backlogs? </label>
+                <select name="previous_backlogs" id="academics-backlog-toggle" class="form-control" onchange="toggleBacklogsSection(this.value)">
+                  <option value="no" {% if not card_data.academics or not card_data.academics.previous_backlogs %}selected{% endif %}>No</option>
+                  <option value="yes" {% if card_data.academics and card_data.academics.previous_backlogs %}selected{% endif %}>Yes</option>
+                </select>
+              </div>
+
+              <div id="backlogs-wrapper" style="display: {% if card_data.academics and card_data.academics.previous_backlogs %}block{% else %}none{% endif %};">
+                <div id="backlog-items-container" style="margin-top: 14px;">
+                  {% if card_data.backlogs %}
+                    {% for b in card_data.backlogs %}
+                      <div class="dynamic-item-row backlog-item-row">
+                        <div class="dynamic-box-header">
+                          <div class="dynamic-box-title">
+                            <span class="box-item-number">#{{ loop.index }}</span>
+                            <span class="box-item-label" data-base="Backlog">Backlog #{{ loop.index }}</span>
+                          </div>
+                          <button type="button" class="btn-remove-item" onclick="removeDynamicRow(this)">✕ Remove</button>
+                        </div>
+                        <div class="form-row">
+                          <div class="form-group">
+                            <label>Academic Level</label>
+                            <select name="backlog_level[]" class="form-control">
+                              <option value="10th" {% if b.academic_level == '10th' %}selected{% endif %}>10th</option>
+                              <option value="12th" {% if b.academic_level == '12th' %}selected{% endif %}>12th</option>
+                              <option value="FE" {% if b.academic_level == 'FE' %}selected{% endif %}>FE</option>
+                              <option value="SE" {% if b.academic_level == 'SE' %}selected{% endif %}>SE</option>
+                              <option value="TE" {% if b.academic_level == 'TE' %}selected{% endif %}>TE</option>
+                              <option value="BE" {% if b.academic_level == 'BE' %}selected{% endif %}>BE</option>
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label>Subject Name</label>
+                            <input type="text" name="backlog_subject[]" value="{{ b.subject_name }}" placeholder="Subject Name" class="form-control">
+                          </div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    <div class="dynamic-item-row backlog-item-row">
+                      <div class="dynamic-box-header">
+                        <div class="dynamic-box-title">
+                          <span class="box-item-number">#1</span>
+                          <span class="box-item-label" data-base="Backlog">Backlog #1</span>
+                        </div>
+                        <button type="button" class="btn-remove-item" onclick="removeDynamicRow(this)">✕ Remove</button>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label>Academic Level</label>
+                          <select name="backlog_level[]" class="form-control">
+                            <option value="FE">FE</option>
+                            <option value="SE">SE</option>
+                            <option value="TE">TE</option>
+                            <option value="BE">BE</option>
+                            <option value="10th">10th</option>
+                            <option value="12th">12th</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Subject Name</label>
+                          <input type="text" name="backlog_subject[]" placeholder="Subject Name" class="form-control">
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addBacklogRow()">+ Add More Backlog</button>
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary modal-finish-btn">Finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 2: Coding Languages -->
+    <div class="modal-backdrop" id="modal-coding_languages">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>Coding Languages</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-coding_languages')">&times;</button>
+        </div>
+        <form id="form-coding_languages" onsubmit="submitCardForm(event, 'coding_languages')">
+          <div class="modal-body">
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">
+              Select programming languages you know and your depth of knowledge. (First option is NONE).
+            </p>
+            <div id="coding-langs-container">
+              {% if card_data.coding_languages %}
+                {% for cl in card_data.coding_languages %}
+                  <div class="dynamic-item-row lang-row">
+                    <div class="dynamic-box-header">
+                      <div class="dynamic-box-title">
+                        <span class="box-item-number">#{{ loop.index }}</span>
+                        <span class="box-item-label" data-base="Language">Language #{{ loop.index }}</span>
+                      </div>
+                      <button type="button" class="btn-remove-item" onclick="removeDynamicRow(this)">✕ Remove</button>
+                    </div>
+                    <div class="form-group">
+                      <label>Programming Language</label>
+                      <select name="language_name[]" class="form-control lang-select" onchange="handleLangSelectChange(this)">
+                        <option value="NONE" {% if cl.language_name == 'NONE' %}selected{% endif %}>NONE</option>
+                        <option value="Python" {% if cl.language_name == 'Python' %}selected{% endif %}>Python</option>
+                        <option value="C++" {% if cl.language_name == 'C++' %}selected{% endif %}>C++</option>
+                        <option value="Java" {% if cl.language_name == 'Java' %}selected{% endif %}>Java</option>
+                        <option value="JavaScript" {% if cl.language_name == 'JavaScript' %}selected{% endif %}>JavaScript</option>
+                        <option value="C" {% if cl.language_name == 'C' %}selected{% endif %}>C</option>
+                        <option value="C#" {% if cl.language_name == 'C#' %}selected{% endif %}>C#</option>
+                        <option value="TypeScript" {% if cl.language_name == 'TypeScript' %}selected{% endif %}>TypeScript</option>
+                        <option value="Dart" {% if cl.language_name == 'Dart' %}selected{% endif %}>Dart</option>
+                        <option value="Swift" {% if cl.language_name == 'Swift' %}selected{% endif %}>Swift</option>
+                        <option value="Kotlin" {% if cl.language_name == 'Kotlin' %}selected{% endif %}>Kotlin</option>
+                        <option value="R" {% if cl.language_name == 'R' %}selected{% endif %}>R</option>
+                        <option value="Go" {% if cl.language_name == 'Go' %}selected{% endif %}>Go</option>
+                        <option value="Rust" {% if cl.language_name == 'Rust' %}selected{% endif %}>Rust</option>
+                        <option value="PHP" {% if cl.language_name == 'PHP' %}selected{% endif %}>PHP</option>
+                        <option value="Ruby" {% if cl.language_name == 'Ruby' %}selected{% endif %}>Ruby</option>
+                        <option value="MATLAB" {% if cl.language_name == 'MATLAB' %}selected{% endif %}>MATLAB</option>
+                      </select>
+                    </div>
+
+                    <div class="depth-select-group" style="display: {% if cl.language_name == 'NONE' %}none{% else %}block{% endif %}; margin-top: 6px;">
+                      <label style="font-size: 0.85rem; margin-top: 6px;">Proficiency Depth:</label>
+                      <select name="proficiency_level[]" class="form-control">
+                        <option value="Beginner" {% if cl.proficiency_level == 'Beginner' %}selected{% endif %}>Beginner</option>
+                        <option value="Intermediate" {% if cl.proficiency_level == 'Intermediate' %}selected{% endif %}>Intermediate</option>
+                        <option value="Proficient" {% if cl.proficiency_level == 'Proficient' %}selected{% endif %}>Proficient</option>
+                        <option value="Advanced" {% if cl.proficiency_level == 'Advanced' %}selected{% endif %}>Advanced</option>
+                        <option value="Expert" {% if cl.proficiency_level == 'Expert' %}selected{% endif %}>Expert</option>
+                      </select>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="dynamic-item-row lang-row">
+                  <div class="dynamic-box-header">
+                    <div class="dynamic-box-title">
+                      <span class="box-item-number">#1</span>
+                      <span class="box-item-label" data-base="Language">Language #1</span>
+                    </div>
+                    <button type="button" class="btn-remove-item" onclick="removeDynamicRow(this)">✕ Remove</button>
+                  </div>
+                  <div class="form-group">
+                    <label>Programming Language</label>
+                    <select name="language_name[]" class="form-control lang-select" onchange="handleLangSelectChange(this)">
+                      <option value="NONE">NONE</option>
+                      <option value="Python">Python</option>
+                      <option value="C++">C++</option>
+                      <option value="Java">Java</option>
+                      <option value="JavaScript">JavaScript</option>
+                      <option value="C">C</option>
+                      <option value="C#">C#</option>
+                      <option value="TypeScript">TypeScript</option>
+                      <option value="Dart">Dart</option>
+                      <option value="Swift">Swift</option>
+                      <option value="Kotlin">Kotlin</option>
+                      <option value="R">R</option>
+                      <option value="Go">Go</option>
+                      <option value="Rust">Rust</option>
+                      <option value="PHP">PHP</option>
+                      <option value="Ruby">Ruby</option>
+                      <option value="MATLAB">MATLAB</option>
+                    </select>
+                  </div>
+                  <div class="depth-select-group" style="display: none; margin-top: 6px;">
+                    <label style="font-size: 0.85rem; margin-top: 6px;">Proficiency Depth:</label>
+                    <select name="proficiency_level[]" class="form-control">
+                      <option value="Beginner">Beginner</option>
+                      <option value="Intermediate">Intermediate</option>
+                      <option value="Proficient">Proficient</option>
+                      <option value="Advanced">Advanced</option>
+                      <option value="Expert">Expert</option>
+                    </select>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" style="margin-top: 10px;" onclick="addCodingLangRow()">+ Add Another Language</button>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary modal-finish-btn">Finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 3: Technical Skills -->
+    <div class="modal-backdrop" id="modal-technical_skills">
+      <div class="modal-box modal-lg">
+        <div class="modal-header">
+          <h3>Technical Skills</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-technical_skills')">&times;</button>
+        </div>
+        <form id="form-technical_skills" onsubmit="submitCardForm(event, 'technical_skills')">
+          <div class="modal-body">
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">
+              Select all technical skills you're good at. Select circle 1 (Beginner) to 5 (Expert) to rate your knowledge level.
+            </p>
+
+            <!-- NONE Option Card -->
+            <div class="tech-skill-card-item">
+              <label class="checkbox-label">
+                <input type="checkbox" name="skill_name[]" value="NONE" id="tech-none-checkbox" class="tech-checkbox" onchange="toggleTechNone(this)"
+                  {% if card_data.technical_skills and card_data.technical_skills[0].skill_name == 'NONE' %}checked{% endif %}>
+                <span class="tech-title-text" style="font-size: 1.05rem;">NONE (I don't have any technical skills yet)</span>
+              </label>
+            </div>
+
+            <div id="tech-skills-cards-wrapper">
+              {% set allowed_tech = [
+                ('Artificial Intelligence', 'Expert Systems, Search Algorithms, Agent Architectures, Heuristics'),
+                ('Machine Learning', 'Supervised, Unsupervised, Scikit-Learn, Regression, Classification'),
+                ('Deep Learning', 'PyTorch, TensorFlow, Keras, CNNs, RNNs, Transformers'),
+                ('Neural Networks', 'Perceptrons, Backpropagation, Activation Functions, Layer Architectures'),
+                ('NLP', 'NLTK, SpaCy, Tokenization, Sentiment Analysis, LLMs'),
+                ('Computer Vision', 'OpenCV, Image Processing, Object Detection, YOLO, Segmentation'),
+                ('Generative AI', 'RAG, Prompt Engineering, Fine-tuning, LangChain, Diffusion Models'),
+                ('Data Science', 'Data Cleaning, Feature Engineering, EDA, Pandas, NumPy, Jupyter'),
+                ('Data Analytics', 'Trend Analysis, Metrics Tracking, Business Intelligence, KPI Reporting'),
+                ('Data Visualization', 'Matplotlib, Seaborn, Tableau, PowerBI, D3.js Charts'),
+                ('Statistics', 'Probability, Hypothesis Testing, Distributions, ANOVA, Confidence Intervals'),
+                ('Databases', 'SQL, NoSQL, PostgreSQL, MySQL, MongoDB, Redis, Schema Design'),
+                ('Web Development', 'HTML, CSS, JavaScript, React, Node.js, Flask, Django, REST APIs'),
+                ('App Development', 'Flutter, React Native, Android (Kotlin), iOS (Swift), Mobile UI'),
+                ('Cloud and DevOps', 'AWS, GCP, Docker, Kubernetes, CI/CD, Git, Linux Administration')
+              ] %}
+
+              {% for title, sub in allowed_tech %}
+                {% set existing_level = (card_data.technical_skills_dict.get(title)) if (card_data and card_data.technical_skills_dict) else None %}
+
+                <div class="tech-skill-card-item">
+                  <div class="tech-card-header">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="skill_name[]" value="{{ title }}" {% if existing_level %}checked{% endif %} class="tech-checkbox" onchange="toggleTechCardRating(this)">
+                      <span class="tech-title-text">{{ title }}</span>
+                    </label>
+                  </div>
+                  <div class="tech-subtitle-text">{{ sub }}</div>
+                  
+                  <div class="circles-rating-container" style="display: {% if existing_level %}flex{% else %}none{% endif %};">
+                    <span class="circle-rating-label">Knowledge Level:</span>
+                    <input type="hidden" name="proficiency_level[]" value="{{ existing_level if existing_level else '3' }}" class="circle-val-input" {% if not existing_level %}disabled{% endif %}>
+                    {% for c in range(1, 6) %}
+                      <div class="rating-circle {% if existing_level and (existing_level | int >= c) %}active{% endif %}" data-val="{{ c }}" onclick="setCircleRating(this, {{ c }})"></div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary modal-finish-btn">Finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 4: Coding Platforms -->
+    <div class="modal-backdrop" id="modal-coding_platforms">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>Coding Platforms</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-coding_platforms')">&times;</button>
+        </div>
+        <form id="form-coding_platforms" onsubmit="submitCardForm(event, 'coding_platforms')">
+          <div class="modal-body">
+            <div id="platforms-container">
+              {% if card_data.coding_platforms %}
+                {% for cp in card_data.coding_platforms %}
+                  <div class="platform-item-row dynamic-item-row">
+                    <div class="dynamic-box-header">
+                      <div class="dynamic-box-title">
+                        <span class="box-item-number">#{{ loop.index }}</span>
+                        <span class="box-item-label" data-base="Platform">Platform #{{ loop.index }}</span>
+                      </div>
+                      <button type="button" class="btn-remove-item" onclick="removeDynamicRow(this)">✕ Remove</button>
+                    </div>
+                    <div class="form-group">
+                      <label>Platform Name</label>
+                      <select name="platform_name[]" class="form-control" onchange="handlePlatformChange(this)">
+                        <option value="NONE" {% if cp.platform_name == 'NONE' %}selected{% endif %}>NONE</option>
+                        <option value="LeetCode" {% if cp.platform_name == 'LeetCode' %}selected{% endif %}>LeetCode</option>
+                        <option value="HackerRank" {% if cp.platform_name == 'HackerRank' %}selected{% endif %}>HackerRank</option>
+                        <option value="CodeChef" {% if cp.platform_name == 'CodeChef' %}selected{% endif %}>CodeChef</option>
+                        <option value="GeeksforGeeks" {% if cp.platform_name == 'GeeksforGeeks' %}selected{% endif %}>GeeksforGeeks</option>
+                        <option value="Codeforces" {% if cp.platform_name == 'Codeforces' %}selected{% endif %}>Codeforces</option>
+                        <option value="Other" {% if cp.platform_name == 'Other' %}selected{% endif %}>Other</option>
+                      </select>
+                    </div>
+
+                    <div class="platform-details-group" style="display: {% if cp.platform_name == 'NONE' %}none{% else %}block{% endif %};">
+                      <div class="form-group">
+                        <label>Profile URL</label>
+                        <input type="url" name="profile_url[]" value="{{ cp.profile_url or '' }}" placeholder="https://leetcode.com/username" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Total Questions Solved</label>
+                        <input type="number" min="0" name="questions_solved[]" value="{{ cp.questions_solved or '0' }}" class="form-control">
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="platform-item-row dynamic-item-row">
+                  <div class="dynamic-box-header">
+                    <div class="dynamic-box-title">
+                      <span class="box-item-number">#1</span>
+                      <span class="box-item-label" data-base="Platform">Platform #1</span>
+                    </div>
+                    <button type="button" class="btn-remove-item" onclick="removeDynamicRow(this)">✕ Remove</button>
+                  </div>
+                  <div class="form-group">
+                    <label>Platform Name</label>
+                    <select name="platform_name[]" class="form-control" onchange="handlePlatformChange(this)">
+                      <option value="NONE">NONE</option>
+                      <option value="LeetCode">LeetCode</option>
+                      <option value="HackerRank">HackerRank</option>
+                      <option value="CodeChef">CodeChef</option>
+                      <option value="GeeksforGeeks">GeeksforGeeks</option>
+                      <option value="Codeforces">Codeforces</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div class="platform-details-group" style="display: none;">
+                    <div class="form-group">
+                      <label>Profile URL</label>
+                      <input type="url" name="profile_url[]" placeholder="https://leetcode.com/username" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>Total Questions Solved</label>
+                      <input type="number" min="0" name="questions_solved[]" value="0" class="form-control">
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" style="margin-top: 10px;" onclick="addPlatformRow()">+ Add Platform</button>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary modal-finish-btn">Finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 5: LinkedIn -->
+    <div class="modal-backdrop" id="modal-linkedin">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>LinkedIn Profile</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-linkedin')">&times;</button>
+        </div>
+        <form id="form-linkedin" onsubmit="submitCardForm(event, 'linkedin')">
+          <div class="modal-body">
+            <div class="modal-white-section">
+              <div class="form-group">
+                <label>Do you use LinkedIn for academic/professional purposes? </label>
+                <select name="uses_academic" class="form-control" onchange="toggleLinkedInDetails(this.value)">
+                  <option value="no" {% if not card_data.linkedin or not card_data.linkedin.uses_for_academic_purposes %}selected{% endif %}>No</option>
+                  <option value="yes" {% if card_data.linkedin and card_data.linkedin.uses_for_academic_purposes %}selected{% endif %}>Yes</option>
+                </select>
+              </div>
+
+              <div id="linkedin-details-wrapper" style="display: {% if card_data.linkedin and card_data.linkedin.uses_for_academic_purposes %}block{% else %}none{% endif %}; margin-top: 14px;">
+                <div class="form-group">
+                  <label>LinkedIn Profile URL </label>
+                  <input type="url" name="profile_url" value="{{ card_data.linkedin.profile_url if card_data.linkedin else '' }}" placeholder="https://linkedin.com/in/username" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label>Number of Posts on LinkedIn </label>
+                  <input type="number" min="0" name="number_of_posts" value="{{ card_data.linkedin.number_of_posts if card_data.linkedin else '0' }}" class="form-control">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary modal-finish-btn">Finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 6: Research Papers -->
+    <div class="modal-backdrop" id="modal-research_papers">
+      <div class="modal-box modal-lg">
+        <div class="modal-header">
+          <h3>Research Papers</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-research_papers')">&times;</button>
+        </div>
+        <form id="form-research_papers" onsubmit="submitCardForm(event, 'research_papers')" enctype="multipart/form-data">
+          <div class="modal-body">
+            <div class="modal-white-section" style="margin-bottom: 18px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label>Have you published any research papers? </label>
+                <select name="has_published" class="form-control" onchange="toggleResearchDetails(this.value)">
+                  <option value="no" {% if not card_data.research_papers or not (card_data.research_papers | selectattr('paper_title') | list | length > 0 or card_data.research_papers[0].get('has_published', 0)) %}selected{% endif %}>No</option>
+                  <option value="yes" {% if card_data.research_papers and (card_data.research_papers | selectattr('paper_title') | list | length > 0 or card_data.research_papers[0].get('has_published', 0)) %}selected{% endif %}>Yes</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="research-details-wrapper" style="display: {% if card_data.research_papers and (card_data.research_papers | selectattr('paper_title') | list | length > 0 or card_data.research_papers[0].get('has_published', 0)) %}block{% else %}none{% endif %};">
+              <div id="research-papers-container">
+                {% if card_data.research_papers and (card_data.research_papers | selectattr('paper_title') | list | length > 0 or card_data.research_papers[0].get('has_published', 0)) %}
+                  {% for rp in card_data.research_papers %}
+                    <div class="dynamic-item-row">
+                      <div class="dynamic-box-header">
+                        <div class="dynamic-box-title">
+                          <span class="box-item-number">#{{ loop.index }}</span>
+                          <span class="box-item-label" data-base="Research Paper">Research Paper #{{ loop.index }}</span>
+                        </div>
+                        <button type="button" class="btn-remove-item" onclick="removeDynamicRow(this)">✕ Remove</button>
+                      </div>
+                      <div class="form-group">
+                        <label>Paper Title</label>
+                        <input type="text" name="paper_title[]" value="{{ rp.paper_title or '' }}" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Journal / Publication Name</label>
+                        <input type="text" name="publication_name[]" value="{{ rp.publication_name or '' }}" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Paper URL / Link</label>
+                        <input type="url" name="paper_url[]" value="{{ rp.paper_url or '' }}" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Document / Paper Upload (Image/PDF)</label>
+                        <div class="single-upload-field">
+                          {% if rp.document_path %}
+                            <div class="existing-file-banner">
+                              <span>📄 <strong>{{ rp.document_path.split('/')[-1] }}</strong></span>
+                              <div class="file-action-buttons">
+                                <a href="/static/{{ rp.document_path }}" target="_blank" class="btn-file-view">👁️ View</a>
+                                <button type="button" class="btn-file-replace" onclick="toggleFileReplace(this)">🔄 Replace</button>
+                              </div>
+                            </div>
+                            <input type="hidden" name="existing_paper_document[]" value="{{ rp.document_path }}">
+                            <div class="file-input-wrapper" style="display: none;">
+                              <div class="file-input-row">
+                                <input type="file" name="paper_document[]" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                                <button type="button" class="btn-cancel-replace" onclick="cancelFileReplace(this)">✕ Cancel</button>
+                              </div>
+                              <div class="selected-file-preview" style="display: none;"></div>
+                            </div>
+                          {% else %}
+                            <input type="hidden" name="existing_paper_document[]" value="">
+                            <div class="file-input-wrapper">
+                              <input type="file" name="paper_document[]" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                              <div class="selected-file-preview" style="display: none;"></div>
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="dynamic-item-row">
+                    <div class="dynamic-box-header">
+                      <div class="dynamic-box-title">
+                        <span class="box-item-number">#1</span>
+                        <span class="box-item-label" data-base="Research Paper">Research Paper #1</span>
+                      </div>
+                      <button type="button" class="btn-remove-item" onclick="removeDynamicRow(this)">✕ Remove</button>
+                    </div>
+                    <div class="form-group">
+                      <label>Paper Title</label>
+                      <input type="text" name="paper_title[]" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>Journal / Publication Name</label>
+                      <input type="text" name="publication_name[]" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>Paper URL / Link</label>
+                      <input type="url" name="paper_url[]" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>Document / Paper Upload (Image/PDF)</label>
+                      <div class="single-upload-field">
+                        <input type="hidden" name="existing_paper_document[]" value="">
+                        <div class="file-input-wrapper">
+                          <input type="file" name="paper_document[]" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                          <div class="selected-file-preview" style="display: none;"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addResearchPaperRow()">+ Add Another Research Paper</button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary modal-finish-btn">Finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 7: Internships -->
+    <div class="modal-backdrop" id="modal-internships">
+      <div class="modal-box modal-lg">
+        <div class="modal-header">
+          <h3>Internships</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-internships')">&times;</button>
+        </div>
+        <form id="form-internships" onsubmit="submitCardForm(event, 'internships')" enctype="multipart/form-data">
+          <div class="modal-body">
+            <div class="modal-white-section">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label>Have you done any internships yet? </label>
+                <select name="has_internship" class="form-control" onchange="toggleInternshipDetails(this.value)">
+                  <option value="no" {% if not card_data.internships or not (card_data.internships | selectattr('company_name') | list | length > 0 or card_data.internships[0].get('has_internship', 0)) %}selected{% endif %}>No</option>
+                  <option value="yes" {% if card_data.internships and (card_data.internships | selectattr('company_name') | list | length > 0 or card_data.internships[0].get('has_internship', 0)) %}selected{% endif %}>Yes</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="internship-details-wrapper" style="display: {% if card_data.internships and (card_data.internships | selectattr('company_name') | list | length > 0 or card_data.internships[0].get('has_internship', 0)) %}block{% else %}none{% endif %};">
+              <div id="internships-container">
+                {% if card_data.internships and (card_data.internships | selectattr('company_name') | list | length > 0 or card_data.internships[0].get('has_internship', 0)) %}
+                  {% for it in card_data.internships %}
+                    <div class="dynamic-item-row">
+                      <div class="dynamic-box-header">
+                        <div class="dynamic-box-title">
+                          <span class="box-item-number">#{{ loop.index }}</span>
+                          <span class="box-item-label" data-base="Internship">Internship #{{ loop.index }}</span>
+                        </div>
+                        {% if loop.index > 1 %}
+                          <button type="button" class="btn-remove-item" onclick="removeDynamicRow(this)">✕ Remove</button>
+                        {% endif %}
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label>Company Name</label>
+                          <input type="text" name="company_name[]" value="{{ it.company_name or '' }}" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Role</label>
+                          <input type="text" name="role[]" value="{{ it.role or '' }}" class="form-control">
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label>Start Date</label>
+                          <input type="date" name="start_date[]" value="{{ it.start_date or '' }}" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>End Date</label>
+                          <input type="date" name="end_date[]" value="{{ it.end_date or '' }}" class="form-control">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Offer Letter Upload (Image/PDF)</label>
+                        <div class="single-upload-field">
+                          {% if it.offer_letter_path %}
+                            <div class="existing-file-banner">
+                              <span>📄 <strong>{{ it.offer_letter_path.split('/')[-1] }}</strong></span>
+                              <div class="file-action-buttons">
+                                <a href="/static/{{ it.offer_letter_path }}" target="_blank" class="btn-file-view">👁️ View</a>
+                                <button type="button" class="btn-file-replace" onclick="toggleFileReplace(this)">🔄 Replace</button>
+                              </div>
+                            </div>
+                            <input type="hidden" name="existing_offer_letter[]" value="{{ it.offer_letter_path }}">
+                            <div class="file-input-wrapper" style="display: none;">
+                              <div class="file-input-row">
+                                <input type="file" name="offer_letter[]" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                                <button type="button" class="btn-cancel-replace" onclick="cancelFileReplace(this)">✕ Cancel</button>
+                              </div>
+                              <div class="selected-file-preview" style="display: none;"></div>
+                            </div>
+                          {% else %}
+                            <input type="hidden" name="existing_offer_letter[]" value="">
+                            <div class="file-input-wrapper">
+                              <input type="file" name="offer_letter[]" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                              <div class="selected-file-preview" style="display: none;"></div>
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="dynamic-item-row">
+                    <div class="dynamic-box-header">
+                      <div class="dynamic-box-title">
+                        <span class="box-item-number">#1</span>
+                        <span class="box-item-label" data-base="Internship">Internship #1</span>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label>Company Name</label>
+                        <input type="text" name="company_name[]" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Role</label>
+                        <input type="text" name="role[]" class="form-control">
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" name="start_date[]" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" name="end_date[]" class="form-control">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Offer Letter Upload (Image/PDF)</label>
+                      <div class="single-upload-field">
+                        <input type="hidden" name="existing_offer_letter[]" value="">
+                        <div class="file-input-wrapper">
+                          <input type="file" name="offer_letter[]" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                          <div class="selected-file-preview" style="display: none;"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addInternshipRow()">+ Add Another Internship</button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary modal-finish-btn">Finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 8: Hackathons -->
+    <div class="modal-backdrop" id="modal-hackathons">
+      <div class="modal-box modal-lg">
+        <div class="modal-header">
+          <h3>Hackathons</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-hackathons')">&times;</button>
+        </div>
+        <form id="form-hackathons" onsubmit="submitCardForm(event, 'hackathons')" enctype="multipart/form-data">
+          <div class="modal-body">
+            <div class="modal-white-section">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label>Have you done any hackathons yet? </label>
+                <select name="has_hackathon" class="form-control" onchange="toggleHackathonDetails(this.value)">
+                  <option value="no" {% if not card_data.hackathons or not (card_data.hackathons | selectattr('hackathon_name') | list | length > 0 or card_data.hackathons[0].get('has_hackathon', 0)) %}selected{% endif %}>No</option>
+                  <option value="yes" {% if card_data.hackathons and (card_data.hackathons | selectattr('hackathon_name') | list | length > 0 or card_data.hackathons[0].get('has_hackathon', 0)) %}selected{% endif %}>Yes</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="hackathon-details-wrapper" style="display: {% if card_data.hackathons and (card_data.hackathons | selectattr('hackathon_name') | list | length > 0 or card_data.hackathons[0].get('has_hackathon', 0)) %}block{% else %}none{% endif %};">
+              <div id="hackathons-container">
+                {% if card_data.hackathons and (card_data.hackathons | selectattr('hackathon_name') | list | length > 0 or card_data.hackathons[0].get('has_hackathon', 0)) %}
+                  {% for hk in card_data.hackathons %}
+                    <div class="dynamic-item-row">
+                      <div class="dynamic-box-header">
+                        <div class="dynamic-box-title">
+                          <span class="box-item-number">#{{ loop.index }}</span>
+                          <span class="box-item-label" data-base="Hackathon">Hackathon #{{ loop.index }}</span>
+                        </div>
+                        {% if loop.index > 1 %}
+                          <button type="button" class="btn-remove-item" onclick="removeDynamicRow(this)">✕ Remove</button>
+                        {% endif %}
+                      </div>
+                      <div class="form-group">
+                        <label>Hackathon Name</label>
+                        <input type="text" name="hackathon_name[]" value="{{ hk.hackathon_name or '' }}" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Organizer</label>
+                        <input type="text" name="organizer[]" value="{{ hk.organizer or '' }}" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Position / Result (e.g. Winner, Finalist, Participant)</label>
+                        <input type="text" name="position[]" value="{{ hk.position or '' }}" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Certificate Upload (Image/PDF)</label>
+                        <div class="single-upload-field">
+                          {% if hk.certificate_path %}
+                            <div class="existing-file-banner">
+                              <span>📄 <strong>{{ hk.certificate_path.split('/')[-1] }}</strong></span>
+                              <div class="file-action-buttons">
+                                <a href="/static/{{ hk.certificate_path }}" target="_blank" class="btn-file-view">👁️ View</a>
+                                <button type="button" class="btn-file-replace" onclick="toggleFileReplace(this)">🔄 Replace</button>
+                              </div>
+                            </div>
+                            <input type="hidden" name="existing_hackathon_certificate[]" value="{{ hk.certificate_path }}">
+                            <div class="file-input-wrapper" style="display: none;">
+                              <div class="file-input-row">
+                                <input type="file" name="certificate[]" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                                <button type="button" class="btn-cancel-replace" onclick="cancelFileReplace(this)">✕ Cancel</button>
+                              </div>
+                              <div class="selected-file-preview" style="display: none;"></div>
+                            </div>
+                          {% else %}
+                            <input type="hidden" name="existing_hackathon_certificate[]" value="">
+                            <div class="file-input-wrapper">
+                              <input type="file" name="certificate[]" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                              <div class="selected-file-preview" style="display: none;"></div>
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="dynamic-item-row">
+                    <div class="dynamic-box-header">
+                      <div class="dynamic-box-title">
+                        <span class="box-item-number">#1</span>
+                        <span class="box-item-label" data-base="Hackathon">Hackathon #1</span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Hackathon Name</label>
+                      <input type="text" name="hackathon_name[]" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>Organizer</label>
+                      <input type="text" name="organizer[]" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>Position / Result (e.g. Winner, Finalist, Participant)</label>
+                      <input type="text" name="position[]" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>Certificate Upload (Image/PDF)</label>
+                      <div class="single-upload-field">
+                        <input type="hidden" name="existing_hackathon_certificate[]" value="">
+                        <div class="file-input-wrapper">
+                          <input type="file" name="certificate[]" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                          <div class="selected-file-preview" style="display: none;"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addHackathonRow()">+ Add Another Hackathon</button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary modal-finish-btn">Finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 9: Courses and Certificates -->
+    <div class="modal-backdrop" id="modal-courses_certificates">
+      <div class="modal-box modal-lg">
+        <div class="modal-header">
+          <h3>Courses and Certificates</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-courses_certificates')">&times;</button>
+        </div>
+        <form id="form-courses_certificates" onsubmit="submitCardForm(event, 'courses_certificates')" enctype="multipart/form-data">
+          <div class="modal-body">
+            <div class="modal-white-section">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label>Have you taken any courses/certifications? </label>
+                <select name="has_certificate" class="form-control" onchange="toggleCoursesDetails(this.value)">
+                  <option value="no" {% if not card_data.courses_certificates or not card_data.courses_certificates[0].has_certificate %}selected{% endif %}>No</option>
+                  <option value="yes" {% if card_data.courses_certificates and card_data.courses_certificates[0].has_certificate %}selected{% endif %}>Yes</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="courses-details-wrapper" style="display: {% if card_data.courses_certificates and card_data.courses_certificates[0].has_certificate %}block{% else %}none{% endif %};">
+              <div id="courses-container">
+                {% if card_data.courses_certificates and card_data.courses_certificates[0].has_certificate %}
+                  {% for cr in card_data.courses_certificates %}
+                    <div class="dynamic-item-row">
+                      <div class="dynamic-box-header">
+                        <div class="dynamic-box-title">
+                          <span class="box-item-number">#{{ loop.index }}</span>
+                          <span class="box-item-label" data-base="Course / Certificate">Course / Certificate #{{ loop.index }}</span>
+                        </div>
+                        {% if loop.index > 1 %}
+                          <button type="button" class="btn-remove-item" onclick="removeDynamicRow(this)">✕ Remove</button>
+                        {% endif %}
+                      </div>
+                      <div class="form-group">
+                        <label>Course Name</label>
+                        <input type="text" name="course_name[]" value="{{ cr.course_name or '' }}" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Platform / Institution (e.g. Coursera, Udemy, NPTEL)</label>
+                        <input type="text" name="platform[]" value="{{ cr.platform or '' }}" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Certificate Upload (Image/PDF)</label>
+                        <div class="single-upload-field">
+                          {% if cr.certificate_path %}
+                            <div class="existing-file-banner">
+                              <span>📄 <strong>{{ cr.certificate_path.split('/')[-1] }}</strong></span>
+                              <div class="file-action-buttons">
+                                <a href="/static/{{ cr.certificate_path }}" target="_blank" class="btn-file-view">👁️ View</a>
+                                <button type="button" class="btn-file-replace" onclick="toggleFileReplace(this)">🔄 Replace</button>
+                              </div>
+                            </div>
+                            <input type="hidden" name="existing_course_certificate[]" value="{{ cr.certificate_path }}">
+                            <div class="file-input-wrapper" style="display: none;">
+                              <div class="file-input-row">
+                                <input type="file" name="certificate[]" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                                <button type="button" class="btn-cancel-replace" onclick="cancelFileReplace(this)">✕ Cancel</button>
+                              </div>
+                              <div class="selected-file-preview" style="display: none;"></div>
+                            </div>
+                          {% else %}
+                            <input type="hidden" name="existing_course_certificate[]" value="">
+                            <div class="file-input-wrapper">
+                              <input type="file" name="certificate[]" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                              <div class="selected-file-preview" style="display: none;"></div>
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="dynamic-item-row">
+                    <div class="dynamic-box-header">
+                      <div class="dynamic-box-title">
+                        <span class="box-item-number">#1</span>
+                        <span class="box-item-label" data-base="Course / Certificate">Course / Certificate #1</span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Course Name</label>
+                      <input type="text" name="course_name[]" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>Platform / Institution (e.g. Coursera, Udemy, NPTEL)</label>
+                      <input type="text" name="platform[]" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>Certificate Upload (Image/PDF)</label>
+                      <div class="single-upload-field">
+                        <input type="hidden" name="existing_course_certificate[]" value="">
+                        <div class="file-input-wrapper">
+                          <input type="file" name="certificate[]" accept="image/*,.pdf" class="form-control" onchange="handleSingleFileSelect(this)">
+                          <div class="selected-file-preview" style="display: none;"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addCourseRow()">+ Add Another Course</button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary modal-finish-btn">Finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 10: Aptitude -->
+    <div class="modal-backdrop" id="modal-aptitude">
+      <div class="modal-box modal-lg">
+        <div class="modal-header">
+          <h3>Aptitude Evaluation</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-aptitude')">&times;</button>
+        </div>
+        <form id="form-aptitude" onsubmit="submitCardForm(event, 'aptitude')">
+          <div class="modal-body">
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">
+              Rate your depth in each of the 4 aptitude categories using 5 small circles (Circle 1 = Beginner, Circle 5 = Expert).
+            </p>
+
+            {% set apt_cards = [
+              ('Quantitative Aptitude', 'Numbers, Percentages, Profit & Loss, Ratio & Proportion, Time & Work, Algebra'),
+              ('Logical & Analytical Reasoning', 'Coding-Decoding, Blood Relations, Syllogisms, Puzzles, Seating Arrangement'),
+              ('Verbal Ability', 'Grammar, Reading Comprehension, Synonyms/Antonyms, Sentence Correction'),
+              ('Data Interpretation & Analysis', 'Tables, Bar Graphs, Pie Charts, Venn Diagrams, Caselets')
+            ] %}
+
+            {% for title, sub in apt_cards %}
+              {% set existing_level = (card_data.aptitude_dict.get(title)) if (card_data and card_data.aptitude_dict) else None %}
+
+              <div class="apt-card-item">
+                <input type="hidden" name="skill_name[]" value="{{ title }}">
+                <h4 style="font-weight: 700;">{{ title }}</h4>
+                <div class="tech-subtitle-text">{{ sub }}</div>
+                
+                <div class="circles-rating-container" style="display: flex; margin-top: 8px;">
+                  <span class="circle-rating-label">Depth Rating:</span>
+                  <input type="hidden" name="proficiency_level[]" value="{{ existing_level if existing_level else '3' }}" class="circle-val-input">
+                  {% for c in range(1, 6) %}
+                    <div class="rating-circle {% if (existing_level and (existing_level | int >= c)) or (not existing_level and c <= 3) %}active{% endif %}" data-val="{{ c }}" onclick="setCircleRating(this, {{ c }})"></div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary modal-finish-btn">Finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 11: Communication Skills -->
+    <div class="modal-backdrop" id="modal-communication">
+      <div class="modal-box modal-lg">
+        <div class="modal-header">
+          <h3>Communication Skills</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-communication')">&times;</button>
+        </div>
+        <form id="form-communication" onsubmit="submitCardForm(event, 'communication')">
+          <div class="modal-body">
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">
+              Rate your depth in each of the 4 communication categories using 5 small circles (Circle 1 = Beginner, Circle 5 = Expert).
+            </p>
+
+            {% set comm_cards = [
+              ('Group Discussion', 'Articulation, Logical Arguments, Listening, Leadership & Moderation'),
+              ('Conversation', 'Fluency, Active Listening, Body Language, Professional Networking'),
+              ('Interview Speaking', 'Behavioral Answers, STAR Method, Confidence, Concise Structuring'),
+              ('English Grammar and Vocabulary', 'Sentence Structure, Tenses, Vocabulary Building, Pronunciation')
+            ] %}
+
+            {% for title, sub in comm_cards %}
+              {% set existing_level = (card_data.communication_dict.get(title)) if (card_data and card_data.communication_dict) else None %}
+
+              <div class="comm-card-item">
+                <input type="hidden" name="skill_name[]" value="{{ title }}">
+                <h4 style="font-weight: 700;">{{ title }}</h4>
+                <div class="tech-subtitle-text">{{ sub }}</div>
+                
+                <div class="circles-rating-container" style="display: flex; margin-top: 8px;">
+                  <span class="circle-rating-label">Depth Rating:</span>
+                  <input type="hidden" name="proficiency_level[]" value="{{ existing_level if existing_level else '3' }}" class="circle-val-input">
+                  {% for c in range(1, 6) %}
+                    <div class="rating-circle {% if (existing_level and (existing_level | int >= c)) or (not existing_level and c <= 3) %}active{% endif %}" data-val="{{ c }}" onclick="setCircleRating(this, {{ c }})"></div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary modal-finish-btn">Finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 12: Foreign Languages -->
+    <div class="modal-backdrop" id="modal-foreign_languages">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>Foreign Languages</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-foreign_languages')">&times;</button>
+        </div>
+        <form id="form-foreign_languages" onsubmit="submitCardForm(event, 'foreign_languages')">
+          <div class="modal-body">
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">
+              Select foreign languages you speak and your fluency level.
+            </p>
+            <div id="foreign-langs-container">
+              {% if card_data.foreign_languages %}
+                {% for fl in card_data.foreign_languages %}
+                  <div class="dynamic-item-row foreign-lang-row">
+                    <div class="dynamic-box-header">
+                      <div class="dynamic-box-title">
+                        <span class="box-item-number">#{{ loop.index }}</span>
+                        <span class="box-item-label" data-base="Foreign Language">Foreign Language #{{ loop.index }}</span>
+                      </div>
+                      {% if loop.index > 1 %}
+                        <button type="button" class="btn-remove-item" onclick="removeDynamicRow(this)">✕ Remove</button>
+                      {% endif %}
+                    </div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                      <label>Foreign Language</label>
+                      <select name="language_name[]" class="form-control foreign-select" onchange="handleForeignSelectChange(this)">
+                        <option value="English" {% if fl.language_name == 'English' %}selected{% endif %}>English</option>
+                        <option value="NONE" {% if fl.language_name == 'NONE' %}selected{% endif %}>NONE</option>
+                        <option value="Japanese" {% if fl.language_name == 'Japanese' %}selected{% endif %}>Japanese</option>
+                        <option value="German" {% if fl.language_name == 'German' %}selected{% endif %}>German</option>
+                        <option value="French" {% if fl.language_name == 'French' %}selected{% endif %}>French</option>
+                        <option value="Spanish" {% if fl.language_name == 'Spanish' %}selected{% endif %}>Spanish</option>
+                        <option value="Italian" {% if fl.language_name == 'Italian' %}selected{% endif %}>Italian</option>
+                        <option value="Russian" {% if fl.language_name == 'Russian' %}selected{% endif %}>Russian</option>
+                        <option value="Korean" {% if fl.language_name == 'Korean' %}selected{% endif %}>Korean</option>
+                        <option value="Chinese" {% if fl.language_name == 'Chinese' %}selected{% endif %}>Chinese</option>
+                        <option value="Arabic" {% if fl.language_name == 'Arabic' %}selected{% endif %}>Arabic</option>
+                        <option value="Portuguese" {% if fl.language_name == 'Portuguese' %}selected{% endif %}>Portuguese</option>
+                        <option value="Dutch" {% if fl.language_name == 'Dutch' %}selected{% endif %}>Dutch</option>
+                        <option value="Mandarin" {% if fl.language_name == 'Mandarin' or fl.language_name == 'Mandarin Chinese' %}selected{% endif %}>Mandarin</option>
+                        <option value="Other" {% if fl.language_name == 'Other' or fl.language_name == 'Other Foreign Language' %}selected{% endif %}>Other</option>
+                      </select>
+                    </div>
+
+                    <div class="fluency-select-group" style="display: {% if fl.language_name == 'NONE' %}none{% else %}block{% endif %}; margin-top: 6px;">
+                      <label style="font-size: 0.85rem;">Fluency Level:</label>
+                      <select name="proficiency_level[]" class="form-control fluency-level-select">
+                        <option value="N5 (Beginner)" {% if fl.proficiency_level == 'N5 (Beginner)' or fl.proficiency_level in ['N5', 'A1'] %}selected{% endif %}>N5 / A1 (Beginner)</option>
+                        <option value="N4 (Elementary)" {% if fl.proficiency_level == 'N4 (Elementary)' or fl.proficiency_level in ['N4', 'A2'] %}selected{% endif %}>N4 / A2 (Elementary)</option>
+                        <option value="N3 (Intermediate)" {% if fl.proficiency_level == 'N3 (Intermediate)' or fl.proficiency_level in ['N3', 'B1'] %}selected{% endif %}>N3 / B1 (Intermediate)</option>
+                        <option value="N2 (Upper Intermediate)" {% if fl.proficiency_level == 'N2 (Upper Intermediate)' or fl.proficiency_level in ['N2', 'B2'] %}selected{% endif %}>N2 / B2 (Upper Intermediate)</option>
+                        <option value="N1 (Advanced/Fluent)" {% if fl.proficiency_level == 'N1 (Advanced/Fluent)' or fl.proficiency_level in ['N1', 'C1', 'C2'] %}selected{% endif %}>N1 / C1-C2 (Advanced/Fluent)</option>
+                      </select>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="dynamic-item-row foreign-lang-row">
+                  <div class="dynamic-box-header">
+                    <div class="dynamic-box-title">
+                      <span class="box-item-number">#1</span>
+                      <span class="box-item-label" data-base="Foreign Language">Foreign Language #1</span>
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin-bottom: 8px;">
+                    <label>Foreign Language</label>
+                    <select name="language_name[]" class="form-control foreign-select" onchange="handleForeignSelectChange(this)">
+                      <option value="English">English</option>
+                      <option value="NONE">NONE</option>
+                      <option value="Japanese">Japanese</option>
+                      <option value="German">German</option>
+                      <option value="French">French</option>
+                      <option value="Spanish">Spanish</option>
+                      <option value="Italian">Italian</option>
+                      <option value="Russian">Russian</option>
+                      <option value="Korean">Korean</option>
+                      <option value="Chinese">Chinese</option>
+                      <option value="Arabic">Arabic</option>
+                      <option value="Portuguese">Portuguese</option>
+                      <option value="Dutch">Dutch</option>
+                      <option value="Mandarin">Mandarin</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div class="fluency-select-group" style="display: none; margin-top: 6px;">
+                    <label style="font-size: 0.85rem;">Fluency Level:</label>
+                    <select name="proficiency_level[]" class="form-control fluency-level-select">
+                      <option value="N5 (Beginner)">N5 / A1 (Beginner)</option>
+                      <option value="N4 (Elementary)">N4 / A2 (Elementary)</option>
+                      <option value="N3 (Intermediate)">N3 / B1 (Intermediate)</option>
+                      <option value="N2 (Upper Intermediate)">N2 / B2 (Upper Intermediate)</option>
+                      <option value="N1 (Advanced/Fluent)">N1 / C1-C2 (Advanced/Fluent)</option>
+                    </select>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" style="margin-top: 10px;" onclick="addForeignLangRow()">+ Add Foreign Language</button>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary modal-finish-btn">Finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 13: Projects -->
+    <div class="modal-backdrop" id="modal-projects">
+      <div class="modal-box modal-lg">
+        <div class="modal-header">
+          <h3>Projects</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-projects')">&times;</button>
+        </div>
+        <form id="form-projects" onsubmit="submitCardForm(event, 'projects')">
+          <div class="modal-body">
+            <div class="modal-white-section">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label>Have you ever made any projects? </label>
+                <select name="has_project" class="form-control" onchange="toggleProjectDetails(this.value)">
+                  <option value="no" {% if not card_data.projects or not card_data.projects[0].has_project %}selected{% endif %}>No</option>
+                  <option value="yes" {% if card_data.projects and card_data.projects[0].has_project %}selected{% endif %}>Yes</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="project-details-wrapper" style="display: {% if card_data.projects and card_data.projects[0].has_project %}block{% else %}none{% endif %};">
+              <div id="projects-container">
+                {% if card_data.projects and card_data.projects[0].has_project %}
+                  {% for pr in card_data.projects %}
+                    <div class="dynamic-item-row project-item-card">
+                      <div class="dynamic-box-header">
+                        <div class="dynamic-box-title">
+                          <span class="box-item-number">#{{ loop.index }}</span>
+                          <span class="box-item-label" data-base="Project">Project #{{ loop.index }}</span>
+                        </div>
+                        {% if loop.index > 1 %}
+                          <button type="button" class="btn-remove-item" onclick="removeDynamicRow(this)">✕ Remove</button>
+                        {% endif %}
+                      </div>
+                      <div class="form-group">
+                        <label>Project Title</label>
+                        <input type="text" name="project_title[]" value="{{ pr.project_title or '' }}" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>GitHub Repository Link</label>
+                        <input type="url" name="github_url[]" value="{{ pr.github_url or '' }}" placeholder="https://github.com/username/repo" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Project Description</label>
+                        <textarea name="project_description[]" rows="2" class="form-control">{{ pr.project_description or '' }}</textarea>
+                      </div>
+                      <div class="form-group">
+                        <label>Languages & Stack Used (Select all that apply):</label>
+                        <input type="hidden" name="languages_json[]" class="project-langs-json-input" value="{{ pr.languages_json or '[]' }}">
+                        <div class="project-langs-checkboxes">
+                          {% set avail_langs = ['HTML', 'CSS', 'JavaScript', 'Java', 'Python', 'SQL', 'Dart', 'Swift', 'C++', 'C', 'C#', 'React Native', 'R'] %}
+                          {% set saved_langs = pr.languages_json | from_json if pr.languages_json else [] %}
+                          {% for pl in avail_langs %}
+                            <label class="checkbox-inline-label">
+                              <input type="checkbox" value="{{ pl }}" {% if pl in saved_langs %}checked{% endif %} onchange="updateProjectLangsJSON(this)"> {{ pl }}
+                            </label>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="dynamic-item-row project-item-card">
+                    <div class="dynamic-box-header">
+                      <div class="dynamic-box-title">
+                        <span class="box-item-number">#1</span>
+                        <span class="box-item-label" data-base="Project">Project #1</span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Project Title</label>
+                      <input type="text" name="project_title[]" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>GitHub Repository Link</label>
+                      <input type="url" name="github_url[]" placeholder="https://github.com/username/repo" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label>Project Description</label>
+                      <textarea name="project_description[]" rows="2" class="form-control"></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label>Languages & Stack Used (Select all that apply):</label>
+                      <input type="hidden" name="languages_json[]" class="project-langs-json-input" value="[]">
+                      <div class="project-langs-checkboxes">
+                        {% set avail_langs = ['HTML', 'CSS', 'JavaScript', 'Java', 'Python', 'SQL', 'Dart', 'Swift', 'C++', 'C', 'C#', 'React Native', 'R'] %}
+                        {% for pl in avail_langs %}
+                          <label class="checkbox-inline-label">
+                            <input type="checkbox" value="{{ pl }}" onchange="updateProjectLangsJSON(this)"> {{ pl }}
+                          </label>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addProjectRow()">+ Add Another Project</button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary modal-finish-btn">Finish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal: Score Explanation ("How the score is calculated") -->
+    <div class="modal-backdrop" id="modal-score-explanation">
+      <div class="modal-box modal-lg">
+        <div class="modal-header">
+          <h3>Placement Readiness Score Calculation Formula</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-score-explanation')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+            Your readiness score is evaluated across 13 weighted parameters totaling 100%. Higher weightage is allocated to engineering SGPA averages, coding proficiency, technical domain skills, and project stack diversity:
+          </p>
+
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Weightage</th>
+                <th>Evaluation Metric</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Academics</td><td>10.0%</td><td>Higher preference to engineering SGPA averages over 10th & 12th %; penalty for backlogs</td></tr>
+              <tr><td>Coding Languages</td><td>18.0%</td><td>Number of languages known & depth (Beginner to Expert)</td></tr>
+              <tr><td>Technical Skills</td><td>18.0%</td><td>Knowledge depth across 15 core technical engineering domains</td></tr>
+              <tr><td>Coding Platforms</td><td>5.0%</td><td>Total questions solved across LeetCode, HackerRank, GeeksforGeeks, etc.</td></tr>
+              <tr><td>LinkedIn Profile</td><td>0.5%</td><td>Academic usage & number of technical posts</td></tr>
+              <tr><td>Research Papers</td><td>0.5%</td><td>Number of published research papers</td></tr>
+              <tr><td>Internships</td><td>1.0%</td><td>Previous industrial internship experience</td></tr>
+              <tr><td>Hackathons</td><td>2.0%</td><td>Competitive hackathon participations & achievements</td></tr>
+              <tr><td>Courses & Certificates</td><td>4.0%</td><td>Total verified course completion certificates</td></tr>
+              <tr><td>Aptitude Skills</td><td>10.0%</td><td>Quant, Logical, Verbal & Data Interpretation depth</td></tr>
+              <tr><td>Communication Skills</td><td>10.0%</td><td>GD, Conversation, Interview Speaking & Grammar depth</td></tr>
+              <tr><td>Foreign Languages</td><td>1.0%</td><td>Fluency in non-Indian international languages (Japanese, German, French, etc.)</td></tr>
+              <tr><td>Projects</td><td>20.0%</td><td>Number of GitHub projects & diversity of programming languages used</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('modal-score-explanation')">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aesthetic Score Calculation Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="loading-content-box">
+        <div class="spinner-ring"></div>
+        <h3 style="margin-top: 18px; font-weight: 700;">Calculating Placement Readiness Score...</h3>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px;">
+          Evaluating academic records, technical skills, coding questions solved, projects, and aptitudes...
+        </p>
+      </div>
+    </div>
+
+  {% else %}
+    <!-- Admin / Faculty Dashboard View -->
+    <div class="welcome-score-header">
+      <div>
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: #fff;">
+          Welcome, <span class="gradient-text">{{ admin_name }}</span>!
+        </h1>
+        <p style="color: var(--text-secondary); margin-top: 4px;">
+          Role: <strong>{{ role }}</strong> | CATALYST Placement Management & Analytics Portal
+        </p>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <button class="btn btn-secondary" onclick="window.location.reload()">🔄 Refresh Analytics</button>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+      </div>
+    </div>
+
+    <!-- 1. SUMMARY METRICS CARDS GRID -->
+    <div class="admin-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 30px;">
+      <div class="metric-card" style="background: rgba(56, 81, 68, 0.12); border: 1.5px solid rgba(56, 81, 68, 0.35); padding: 22px; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(56, 81, 68, 0.08);">
+        <div style="position: absolute; right: 18px; top: 18px; font-size: 2.8rem; opacity: 0.9;">👥</div>
+        <div style="font-size: 0.85rem; color: var(--accent-primary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Total Students</div>
+        <div style="font-size: 2.2rem; font-weight: 800; color: var(--accent-primary); margin: 8px 0 4px 0;" id="metric-total-students">{{ admin_metrics.total_students }}</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Enrolled Engineering Cohort</div>
+      </div>
+
+      <div class="metric-card" style="background: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(16, 185, 129, 0.4); padding: 22px; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);">
+        <div style="position: absolute; right: 18px; top: 18px; font-size: 2.8rem; opacity: 1.0;">🟢</div>
+        <div style="font-size: 0.85rem; color: #059669; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Ready</div>
+        <div style="font-size: 2.2rem; font-weight: 800; color: #059669; margin: 8px 0 4px 0;" id="metric-ready-count">{{ admin_metrics.ready_count }} <span style="font-size: 1rem; font-weight: 600; color: #059669;">({{ admin_metrics.ready_pct }}%)</span></div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Placement Score &ge; 75.0</div>
+      </div>
+
+      <div class="metric-card" style="background: rgba(245, 158, 11, 0.15); border: 1.5px solid rgba(245, 158, 11, 0.4); padding: 22px; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.1);">
+        <div style="position: absolute; right: 18px; top: 18px; font-size: 2.8rem; opacity: 1.0;">🟡</div>
+        <div style="font-size: 0.85rem; color: #d97706; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Moderately Ready</div>
+        <div style="font-size: 2.2rem; font-weight: 800; color: #d97706; margin: 8px 0 4px 0;" id="metric-mod-count">{{ admin_metrics.moderately_ready_count }} <span style="font-size: 1rem; font-weight: 600; color: #d97706;">({{ admin_metrics.mod_pct }}%)</span></div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Placement Score 50.0 - 74.9</div>
+      </div>
+
+      <div class="metric-card" style="background: rgba(239, 68, 68, 0.15); border: 1.5px solid rgba(239, 68, 68, 0.4); padding: 22px; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.1);">
+        <div style="position: absolute; right: 18px; top: 18px; font-size: 2.8rem; opacity: 1.0;">🔴</div>
+        <div style="font-size: 0.85rem; color: #dc2626; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Needs Improvement</div>
+        <div style="font-size: 2.2rem; font-weight: 800; color: #dc2626; margin: 8px 0 4px 0;" id="metric-needs-imp-count">{{ admin_metrics.needs_improvement_count }} <span style="font-size: 1rem; font-weight: 600; color: #dc2626;">({{ admin_metrics.needs_imp_pct }}%)</span></div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Placement Score &lt; 50.0</div>
+      </div>
+    </div>
+
+    <!-- 2. AT-RISK STUDENT IDENTIFICATION PANEL -->
+    <div class="admin-section-card" style="background: var(--bg-card); border: 1px solid rgba(248, 113, 113, 0.3); border-radius: 16px; padding: 24px; margin-bottom: 30px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+            <span style="color: #f87171;">⚠️</span> At-Risk Student Identification (Requires Attention)
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">
+            Students flagged for low readiness (<60), low SGPA (<7.5), active backlogs, or critical skill deficits.
+          </p>
+        </div>
+        <span class="status-badge alert-danger" style="font-size: 0.85rem; font-weight: 700; padding: 8px 22px; border-radius: 20px; background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1.5px solid rgba(239, 68, 68, 0.4); display: inline-flex; align-items: center;" id="at-risk-count-badge">
+          {{ admin_metrics.at_risk_students | length }} Students Needing Attention
+        </span>
+      </div>
+
+      <div class="table-responsive" style="overflow-x: auto; max-height: 320px; overflow-y: auto;">
+        <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="background: rgba(56, 81, 68, 0.05); text-align: left;">
+              <th style="padding: 12px 16px;">Student</th>
+              <th style="padding: 12px 16px;">PRN</th>
+              <th style="padding: 12px 16px;">Department & Year</th>
+              <th style="padding: 12px 16px;">Readiness Score</th>
+              <th style="padding: 12px 16px;">Primary Weak Area</th>
+              <th style="padding: 12px 16px; text-align: center;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="at-risk-table-body">
+            {% if admin_metrics.at_risk_students %}
+              {% for s in admin_metrics.at_risk_students %}
+                <tr style="border-bottom: 1px solid rgba(56, 81, 68, 0.1);">
+                  <td style="padding: 12px 16px; font-weight: 700; color: var(--text-primary);">{{ s.full_name }}</td>
+                  <td style="padding: 12px 16px; color: var(--text-secondary);">{{ s.prn }}</td>
+                  <td style="padding: 12px 16px; color: var(--text-secondary);">{{ s.department_name }} ({{ s.current_year }})</td>
+                  <td style="padding: 12px 16px;">
+                    <span class="status-badge {% if (s.total_score or 0) >= 75 %}status-ready{% elif (s.total_score or 0) >= 50 %}status-mod{% else %}status-needs-imp{% endif %}">
+                      {{ s.total_score }} / 100
+                    </span>
+                  </td>
+                  <td style="padding: 12px 16px;">
+                    <span style="background: rgba(248, 113, 113, 0.15); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.82rem;">
+                      {{ s.weak_area }}
+                    </span>
+                  </td>
+                  <td style="padding: 12px 16px; text-align: center;">
+                    <button class="btn btn-secondary btn-sm" onclick="openStudentEverythingModal({{ s.student_id }})" style="padding: 6px 12px; font-size: 0.8rem;">
+                      🔍 Inspect Profile
+                    </button>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 24px; color: #34d399;">
+                  🎉 Excellent! No students are currently flagged as at-risk.
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. COMPREHENSIVE ADMIN ANALYTICS -->
+    <div class="admin-section-card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; margin-bottom: 30px;">
+      <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+        📈 Admin Analytics Dashboard
+      </h2>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px;">
+        Statistical distribution, department performance, year-wise trends, and category benchmarks.
+      </p>
+
+      <div class="charts-grid-three" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        <!-- Chart 1: Classification Donut -->
+        <div class="chart-card" style="background: rgba(56, 81, 68, 0.22); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(56, 81, 68, 0.35); border-radius: 14px; padding: 18px;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Cohort Readiness Classification</h3>
+          <img id="admin-chart-classification" src="data:image/png;base64,{{ admin_charts.chart_classification }}" alt="Classification Donut Chart" style="width: 100%; height: auto; border-radius: 8px;">
+        </div>
+
+        <!-- Chart 2: Score Distribution -->
+        <div class="chart-card" style="background: rgba(56, 81, 68, 0.22); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(56, 81, 68, 0.35); border-radius: 14px; padding: 18px;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Average Readiness Score & Density</h3>
+          <img id="admin-chart-score-dist" src="data:image/png;base64,{{ admin_charts.chart_score_distribution }}" alt="Score Density Chart" style="width: 100%; height: auto; border-radius: 8px;">
+        </div>
+
+        <!-- Chart 3: Department-wise Score -->
+        <div class="chart-card" style="background: rgba(56, 81, 68, 0.22); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(56, 81, 68, 0.35); border-radius: 14px; padding: 18px;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Department-wise Score Comparison</h3>
+          <img id="admin-chart-department" src="data:image/png;base64,{{ admin_charts.chart_department }}" alt="Department Score Chart" style="width: 100%; height: auto; border-radius: 8px;">
+        </div>
+
+        <!-- Chart 4: Year-wise Score Boxplot -->
+        <div class="chart-card" style="background: rgba(56, 81, 68, 0.22); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(56, 81, 68, 0.35); border-radius: 14px; padding: 18px;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Year-wise Readiness Score Distribution</h3>
+          <img id="admin-chart-year" src="data:image/png;base64,{{ admin_charts.chart_year }}" alt="Year-wise Boxplot Chart" style="width: 100%; height: auto; border-radius: 8px;">
+        </div>
+
+        <!-- Chart 5: 13-Category Performance -->
+        <div class="chart-card" style="background: rgba(56, 81, 68, 0.22); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(56, 81, 68, 0.35); border-radius: 14px; padding: 18px;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">13-Category Average Scores (%)</h3>
+          <img id="admin-chart-categories" src="data:image/png;base64,{{ admin_charts.chart_categories }}" alt="Category Performance Chart" style="width: 100%; height: auto; border-radius: 8px;">
+        </div>
+
+        <!-- Chart 6: Technical Skills Distribution -->
+        <div class="chart-card" style="background: rgba(56, 81, 68, 0.22); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(56, 81, 68, 0.35); border-radius: 14px; padding: 18px;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Technical Skills & Platforms Competency</h3>
+          <img id="admin-chart-technical" src="data:image/png;base64,{{ admin_charts.chart_technical }}" alt="Technical Skill Distribution Chart" style="width: 100%; height: auto; border-radius: 8px;">
+        </div>
+
+        <!-- Chart 7: Aptitude & Soft Skills -->
+        <div class="chart-card" style="background: rgba(56, 81, 68, 0.22); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(56, 81, 68, 0.35); border-radius: 14px; padding: 18px;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Aptitude & Communication Performance</h3>
+          <img id="admin-chart-aptitude" src="data:image/png;base64,{{ admin_charts.chart_aptitude }}" alt="Aptitude Performance Chart" style="width: 100%; height: auto; border-radius: 8px;">
+        </div>
+
+        <!-- Chart 8: Project Participation -->
+        <div class="chart-card" style="background: rgba(56, 81, 68, 0.22); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(56, 81, 68, 0.35); border-radius: 14px; padding: 18px;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Project Participation & Internships</h3>
+          <img id="admin-chart-projects" src="data:image/png;base64,{{ admin_charts.chart_projects }}" alt="Project Participation Chart" style="width: 100%; height: auto; border-radius: 8px;">
+        </div>
+
+        <!-- Chart 9: At-Risk Deficit Areas -->
+        <div class="chart-card" style="background: rgba(56, 81, 68, 0.22); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(56, 81, 68, 0.35); border-radius: 14px; padding: 18px;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">At-Risk Deficit Areas Frequency</h3>
+          <img id="admin-chart-at-risk" src="data:image/png;base64,{{ admin_charts.chart_at_risk }}" alt="At-Risk Deficit Areas Chart" style="width: 100%; height: auto; border-radius: 8px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. STUDENT DIRECTORY, SEARCH & FILTERS SECTION -->
+    <div class="admin-section-card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; margin-bottom: 40px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+            🎓 Student Directory & Management
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">
+            Search, filter, inspect profiles, scores, skill gaps, card data, and progress history for all students.
+          </p>
+        </div>
+      </div>
+
+      <!-- Filters & Search Toolbar -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; background: #385144; padding: 18px; border-radius: 14px; border: 1px solid rgba(56, 81, 68, 0.4); box-shadow: 0 6px 20px rgba(56, 81, 68, 0.15); margin-bottom: 20px;">
+        <div>
+          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 6px; color: #ffffff; font-weight: 700; display: block;">🔍 Search Student</label>
+          <input type="text" id="admin-search-input" class="form-control" placeholder="Search Name, PRN..." onkeyup="filterAdminStudentTable()">
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 6px; color: #ffffff; font-weight: 700; display: block;">🏛️ Department</label>
+          <select id="admin-filter-dept" class="form-control" onchange="filterAdminStudentTable()">
+            <option value="all">All Departments</option>
+            {% for d in departments %}
+              <option value="{{ d.department_name }}">{{ d.department_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 6px; color: #ffffff; font-weight: 700; display: block;">📅 Academic Year</label>
+          <select id="admin-filter-year" class="form-control" onchange="filterAdminStudentTable()">
+            <option value="all">All Years</option>
+            <option value="FE">FE (First Year)</option>
+            <option value="SE">SE (Second Year)</option>
+            <option value="TE">TE (Third Year)</option>
+            <option value="BE">BE (Final Year)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 6px; color: #ffffff; font-weight: 700; display: block;">📊 SGPA Range</label>
+          <select id="admin-filter-sgpa" class="form-control" onchange="filterAdminStudentTable()">
+            <option value="all">All SGPA</option>
+            <option value="below_7">Below 7.0</option>
+            <option value="7_to_8.5">7.0 - 8.5 SGPA</option>
+            <option value="above_8.5">Above 8.5 SGPA</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 6px; color: #ffffff; font-weight: 700; display: block;">🎯 Readiness Status</label>
+          <select id="admin-filter-status" class="form-control" onchange="filterAdminStudentTable()">
+            <option value="all">All Status Tiers</option>
+            <option value="ready">Ready (>=75)</option>
+            <option value="moderately_ready">Moderately Ready (50-74)</option>
+            <option value="needs_improvement">Needs Improvement (<50)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.82rem; margin-bottom: 6px; color: #ffffff; font-weight: 700; display: block;">⚠️ Backlogs</label>
+          <select id="admin-filter-backlog" class="form-control" onchange="filterAdminStudentTable()">
+            <option value="all">All Students</option>
+            <option value="no_backlog">No Active Backlogs</option>
+            <option value="has_backlog">Has Active Backlogs</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Students Directory Table -->
+      <div class="table-responsive" style="overflow-x: auto;">
+        <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" id="admin-students-table">
+          <thead>
+            <tr style="background: rgba(56, 81, 68, 0.05); text-align: left;">
+              <th style="padding: 12px 16px;">PRN</th>
+              <th style="padding: 12px 16px;">Student Name</th>
+              <th style="padding: 12px 16px;">Department</th>
+              <th style="padding: 12px 16px;">Year</th>
+              <th style="padding: 12px 16px;">Avg SGPA</th>
+              <th style="padding: 12px 16px;">Backlogs</th>
+              <th style="padding: 12px 16px;">Readiness Score</th>
+              <th style="padding: 12px 16px;">Status Tier</th>
+              <th style="padding: 12px 16px; text-align: center;">View Everything</th>
+            </tr>
+          </thead>
+          <tbody id="admin-students-table-body">
+            {% for s in students %}
+              <tr style="border-bottom: 1px solid rgba(56, 81, 68, 0.1);"
+                  data-student-id="{{ s.student_id }}"
+                  data-name="{{ s.full_name | lower }}"
+                  data-prn="{{ s.prn | lower }}"
+                  data-dept="{{ s.department_name }}"
+                  data-year="{{ s.current_year }}"
+                  data-sgpa="{{ s.avg_sgpa }}"
+                  data-score="{{ s.total_score or 0 }}"
+                  data-status="{% if (s.total_score or 0) >= 75 %}ready{% elif (s.total_score or 0) >= 50 %}moderately_ready{% else %}needs_improvement{% endif %}"
+                  data-backlog="{{ s.backlogs_count }}">
+                <td style="padding: 12px 16px; color: var(--accent-primary); font-weight: 600;">{{ s.prn }}</td>
+                <td style="padding: 12px 16px; font-weight: 700; color: var(--text-primary);">{{ s.full_name }}</td>
+                <td style="padding: 12px 16px; color: var(--text-secondary);">{{ s.department_name }}</td>
+                <td style="padding: 12px 16px; color: var(--text-secondary);">{{ s.current_year }} (Sem {{ s.current_semester }})</td>
+                <td style="padding: 12px 16px; font-weight: 600;">{{ "%.2f"|format(s.avg_sgpa) if s.avg_sgpa else 'N/A' }}</td>
+                <td style="padding: 12px 16px;">
+                  {% if s.backlogs_count > 0 %}
+                    <span style="color: #f87171; font-weight: 700;">⚠️ {{ s.backlogs_count }} Active</span>
+                  {% else %}
+                    <span style="color: #34d399; font-weight: 600;">Clear</span>
+                  {% endif %}
+                </td>
+                <td style="padding: 12px 16px; font-weight: 800; color: var(--text-primary);">
+                  {{ s.total_score or 0 }} / 100
+                </td>
+                <td style="padding: 12px 16px;">
+                  <span class="status-badge {% if (s.total_score or 0) >= 75 %}status-ready{% elif (s.total_score or 0) >= 50 %}status-mod{% else %}status-needs-imp{% endif %}">
+                    {{ s.classification or 'Needs Improvement' }}
+                  </span>
+                </td>
+                <td style="padding: 12px 16px; text-align: center;">
+                  <button class="btn btn-primary btn-sm" onclick="openStudentEverythingModal({{ s.student_id }})" style="padding: 6px 14px; font-size: 0.82rem;">
+                    🔍 View Everything
+                  </button>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. INTERACTIVE "VIEW EVERYTHING" STUDENT DATA MODAL -->
+    <div class="modal-backdrop" id="modal-student-everything" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+      <div class="modal-content" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; width: 100%; max-width: 950px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+        
+        <!-- Modal Header -->
+        <div style="padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: rgba(56, 81, 68, 0.05);">
+          <div>
+            <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); margin: 0;" id="modal-student-name">Student Full Data Profile</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 4px 0 0 0;" id="modal-student-prn-dept">PRN & Department</p>
+          </div>
+          <button onclick="closeStudentEverythingModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.8rem; cursor: pointer;">&times;</button>
+        </div>
+
+        <!-- Modal Navigation Tabs -->
+        <div style="display: flex; gap: 10px; padding: 14px 24px; background: rgba(56, 81, 68, 0.08); border-bottom: 1px solid var(--border-color); overflow-x: auto; flex-shrink: 0; flex-wrap: nowrap;">
+          <button class="admin-modal-tab active" onclick="switchAdminModalTab('profile')" id="modal-tab-profile">👤 Profile</button>
+          <button class="admin-modal-tab" onclick="switchAdminModalTab('scores')" id="modal-tab-scores">📊 Scores & 13 Categories</button>
+          <button class="admin-modal-tab" onclick="switchAdminModalTab('history')" id="modal-tab-history">📜 Assessment History</button>
+          <button class="admin-modal-tab" onclick="switchAdminModalTab('gaps')" id="modal-tab-gaps">🎯 Skill Gaps & AI Roadmap</button>
+          <button class="admin-modal-tab" onclick="switchAdminModalTab('cards')" id="modal-tab-cards">📁 All 13 Card Data</button>
+        </div>
+
+        <!-- Modal Body Content -->
+        <div style="padding: 24px; overflow-y: auto; flex: 1;" id="modal-student-body-content">
+          <!-- Dynamic JS Populated Content -->
+          <div style="text-align: center; padding: 40px;">
+            <div class="spinner-ring"></div>
+            <p style="margin-top: 12px; color: var(--text-secondary);">Loading full student dataset...</p>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div style="padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 12px; background: rgba(255,255,255,0.02);">
+          <button class="btn btn-secondary" onclick="closeStudentEverythingModal()">Close Profile</button>
+        </div>
+
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+
+<!-- Pass Jinja JSON Context to Client JS -->
+<script>
+  window.CATALYST_DATA = {
+    card_data: {{ card_data | tojson if card_data else '{}' }},
+    latest_assessment: {{ latest_assessment | tojson if latest_assessment else 'null' }},
+    assessment_history: {{ assessment_history | tojson if assessment_history else '[]' }}
+  };
+</script>
+
+{% endblock %}

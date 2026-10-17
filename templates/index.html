@@ -1,0 +1,502 @@
+{% extends "base.html" %}
+
+{% block title %}CATALYST{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Animated Catalyst Reaction Graph -->
+<section class="hero-section">
+  <div class="container hero-grid">
+
+    <!-- Left Column: Main Tagline & CTA -->
+    <div class="hero-content">
+      <div class="hero-tag">
+        <svg class="spark-icon" width="16" height="16" viewBox="0 0 32 32" fill="none">
+          <path d="M16 2 C16 10 10 16 2 16 C10 16 16 22 16 30 C16 22 22 16 30 16 C22 16 16 10 16 2 Z" fill="#385144"/>
+        </svg>
+        Next-Gen Placement Analytics
+      </div>
+
+      <h1 class="hero-title">
+        the <span class="hero-catalyst-sparkle"><span class="hero-catalyst-text">CATALYST</span></span> in turning your potential into success
+      </h1>
+
+      <p class="hero-subtitle">
+        Evaluate your performance in various fields for better understanding of where you stand for placements and how you can improve it.
+      </p>
+
+      <div class="hero-cta">
+        {% if current_user.id %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary hero-btn">
+          Get Started &rarr;
+        </a>
+        {% else %}
+        <a href="{{ url_for('register') }}" class="btn btn-primary hero-btn">
+          Get Started &rarr;
+        </a>
+        {% endif %}
+
+        <a href="#features" class="btn btn-secondary hero-btn">
+          Explore Features
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Column: Animated Catalyst Reaction Graph -->
+    <div class="hero-graph-wrapper">
+      <div class="hero-graph-card">
+
+        <div class="graph-card-header">
+          <div class="graph-header-left">
+            <span class="graph-badge">Reaction Kinetics</span>
+            <h3 class="graph-main-title">Placement Readiness Acceleration</h3>
+          </div>
+
+          <div class="graph-status-badge">
+            <span class="pulse-dot"></span>
+            Performance Boosted
+          </div>
+        </div>
+
+        <div class="svg-graph-container">
+          <svg
+            viewBox="0 0 540 340"
+            class="catalyst-graph-svg"
+            aria-label="Performance acceleration graph comparing your preparation vs your improvement using CATALYST"
+          >
+
+            <defs>
+
+              <!-- Upper Curve Catalyst Gradient -->
+              <linearGradient id="catalystCurveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#385144" />
+                <stop offset="50%" stop-color="#3E5E3F" />
+                <stop offset="100%" stop-color="#385144" />
+              </linearGradient>
+
+              <!-- Upper Curve Area Fill Gradient -->
+              <linearGradient id="catalystFillGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#385144" stop-opacity="0.18" />
+                <stop offset="100%" stop-color="#385144" stop-opacity="0.0" />
+              </linearGradient>
+
+              <!-- Glow Filter -->
+              <filter id="greenGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+
+            </defs>
+
+            <!-- Background Grid -->
+            <g
+              class="graph-grid"
+              stroke="rgba(56, 81, 68, 0.1)"
+              stroke-width="1"
+              stroke-dasharray="4 4"
+            >
+              <line x1="60" y1="50" x2="500" y2="50" />
+              <line x1="60" y1="110" x2="500" y2="110" />
+              <line x1="60" y1="170" x2="500" y2="170" />
+              <line x1="60" y1="230" x2="500" y2="230" />
+
+              <line x1="170" y1="50" x2="170" y2="270" />
+              <line x1="280" y1="50" x2="280" y2="270" />
+              <line x1="390" y1="50" x2="390" y2="270" />
+            </g>
+
+            <!-- Y-Axis & X-Axis Lines -->
+            <g
+              class="graph-axes"
+              stroke="#385144"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            >
+
+              <!-- Y Axis -->
+              <line x1="60" y1="25" x2="60" y2="275" />
+              <path
+                d="M 54 34 L 60 22 L 66 34"
+                fill="none"
+                stroke-width="2.5"
+              />
+
+              <!-- X Axis -->
+              <line x1="60" y1="275" x2="515" y2="275" />
+              <path
+                d="M 506 269 L 518 275 L 506 281"
+                fill="none"
+                stroke-width="2.5"
+              />
+
+            </g>
+
+            <!-- Y-Axis Text Label -->
+            <text
+              x="25"
+              y="150"
+              transform="rotate(-90, 25, 150)"
+              text-anchor="middle"
+              fill="#385144"
+              font-size="12"
+              font-weight="700"
+              letter-spacing="0.5"
+            >
+              Performance &amp; Readiness Level
+            </text>
+
+            <!-- X-Axis Text Label -->
+            <text
+              x="287"
+              y="308"
+              text-anchor="middle"
+              fill="#385144"
+              font-size="12"
+              font-weight="700"
+              letter-spacing="0.5"
+            >
+              Time &amp; Preparation Effort
+            </text>
+
+            <!-- Fill area under upper curve -->
+            <path
+              d="M 60 255
+                 C 130 240, 180 90, 280 80
+                 C 370 70, 440 65, 490 55
+                 L 490 275
+                 L 60 275 Z"
+              fill="url(#catalystFillGradient)"
+              class="graph-area-animated"
+            />
+
+            <!-- Lower Curve: Your preparation without guidance -->
+            <path
+              d="M 60 255
+                 C 150 250, 230 220, 330 180
+                 C 410 148, 455 138, 490 135"
+              fill="none"
+              stroke="rgba(56, 81, 68, 0.45)"
+              stroke-width="3"
+              stroke-dasharray="6 6"
+              class="curve-lower-animated"
+            />
+
+            <!-- Upper Curve: Your improvement using CATALYST -->
+            <path
+              d="M 60 255
+                 C 130 240, 180 90, 280 80
+                 C 370 70, 440 65, 490 55"
+              fill="none"
+              stroke="url(#catalystCurveGradient)"
+              stroke-width="4.5"
+              stroke-linecap="round"
+              filter="url(#greenGlow)"
+              class="curve-upper-animated"
+            />
+
+            <!-- Animated Milestone Nodes -->
+
+            <!-- Milestone 1 on Catalyst Curve -->
+            <g class="graph-node node-mid">
+              <circle
+                cx="210"
+                cy="112"
+                r="7"
+                fill="#385144"
+                stroke="#F8F5F2"
+                stroke-width="2.5"
+              />
+
+              <circle
+                cx="210"
+                cy="112"
+                r="14"
+                fill="none"
+                stroke="#385144"
+                stroke-opacity="0.35"
+                class="ping-circle"
+              />
+            </g>
+
+            <!-- Milestone 2 (Peak Success) -->
+            <g class="graph-node node-peak">
+              <circle
+                cx="410"
+                cy="65"
+                r="8"
+                fill="#3E5E3F"
+                stroke="#F8F5F2"
+                stroke-width="2.5"
+              />
+
+              <circle
+                cx="410"
+                cy="65"
+                r="16"
+                fill="none"
+                stroke="#3E5E3F"
+                stroke-opacity="0.35"
+                class="ping-circle"
+              />
+            </g>
+
+            <!-- ===================================================== -->
+            <!-- CURVE LABELS - PLAIN TEXT, NO BACKGROUND             -->
+            <!-- ===================================================== -->
+
+            <!-- Upper Curve Label
+                 Positioned ABOVE the upper curve -->
+            <g class="curve-label curve-label-upper">
+
+              <text
+                x="300"
+                y="25"
+                fill="#385144"
+                font-size="9.5"
+                font-weight="700"
+                font-family="sans-serif"
+              >
+                Your Preparation
+              </text>
+
+              <text
+                x="300"
+                y="38"
+                fill="#385144"
+                font-size="9.5"
+                font-weight="700"
+                font-family="sans-serif"
+              >
+                Using CATALYST
+              </text>
+
+            </g>
+
+            <!-- Lower Curve Label
+                 Positioned BELOW the lower curve -->
+            <g class="curve-label curve-label-lower">
+
+              <text
+                x="315"
+                y="210"
+                fill="rgba(56,81,68,0.85)"
+                font-size="9.5"
+                font-weight="600"
+                font-family="sans-serif"
+              >
+                Your Preparation
+              </text>
+
+              <text
+                x="315"
+                y="223"
+                fill="rgba(56,81,68,0.85)"
+                font-size="9.5"
+                font-weight="600"
+                font-family="sans-serif"
+              >
+                Without Any Guidance
+              </text>
+
+            </g>
+
+          </svg>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- Features Section (4 Cards Only) -->
+<section id="features" class="features-section">
+  <div class="container">
+
+    <div class="section-header">
+      <h2 class="section-title">
+        Comprehensive <span class="gradient-text">Evaluation Suite</span>
+      </h2>
+
+      <p class="section-subtitle">
+        Designed specifically for engineering students to benchmark and elevate their placement readiness.
+      </p>
+    </div>
+
+    <div class="features-grid-4">
+
+      <!-- Card 1: Placement Readiness Score -->
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+
+        <h3 class="feature-title">
+          Placement Readiness Score
+        </h3>
+
+        <p class="feature-desc">
+          Algorithmically computed overall percentage index reflecting your current readiness for corporate recruitment drives.
+        </p>
+      </div>
+
+      <!-- Card 2: Skill Gap Detection -->
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+
+        <h3 class="feature-title">
+          Skill Gap Detection
+        </h3>
+
+        <p class="feature-desc">
+          Pinpoint precise gaps between your current skill set and target industry standards with priority levels (High, Medium, Low).
+        </p>
+      </div>
+
+      <!-- Card 3: Personalized Recommendations -->
+      <div class="feature-card">
+        <div class="feature-icon">💡</div>
+
+        <h3 class="feature-title">
+          Personalized Recommendations
+        </h3>
+
+        <p class="feature-desc">
+          Actionable guidance on specific courses, platforms, and coding practice areas customized to your target roles.
+        </p>
+      </div>
+
+      <!-- Card 4: Progress Tracking -->
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+
+        <h3 class="feature-title">
+          Progress Tracking
+        </h3>
+
+        <p class="feature-desc">
+          Track continuous performance growth across semesters with historical assessment comparison and trend analytics.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- How It Works Section -->
+<section id="how-it-works" class="how-it-works-section">
+  <div class="container">
+
+    <div class="section-header">
+      <h2 class="section-title">
+        How <span class="gradient-text">CATALYST Works</span>
+      </h2>
+
+      <p class="section-subtitle">
+        Five seamless steps to transform your preparation into placement success.
+      </p>
+    </div>
+
+    <div class="steps-timeline">
+
+      <!-- Step 1 -->
+      <div class="step-card">
+        <div class="step-number">1</div>
+
+        <h3 class="step-title">
+          Create Profile
+        </h3>
+
+        <p class="step-desc">
+          Register with your PRN, department, and academic details to set up your personal profile.
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card">
+        <div class="step-number">2</div>
+
+        <h3 class="step-title">
+          Complete Assessment
+        </h3>
+
+        <p class="step-desc">
+          Input your technical skills, academics, aptitude levels, and project details.
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card">
+        <div class="step-number">3</div>
+
+        <h3 class="step-title">
+          Get Score
+        </h3>
+
+        <p class="step-desc">
+          Receive your multi-dimensional Placement Readiness Score and category breakdown.
+        </p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-card">
+        <div class="step-number">4</div>
+
+        <h3 class="step-title">
+          Identify Skill Gaps
+        </h3>
+
+        <p class="step-desc">
+          Review automated gap identification highlighting areas needing immediate focus.
+        </p>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step-card">
+        <div class="step-number">5</div>
+
+        <h3 class="step-title">
+          Improve &amp; Track
+        </h3>
+
+        <p class="step-desc">
+          Follow tailored recommendations and watch your readiness score increase over time.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- About Section -->
+<section id="about" style="padding: 80px 0;">
+  <div
+    class="container"
+    style="max-width: 900px; text-align: center;"
+  >
+
+    <h2 class="section-title">
+      About <span class="gradient-text">CATALYST</span>
+    </h2>
+
+    <p
+      style="
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin-top: 20px;
+      "
+    >
+      CATALYST is a comprehensive Placement Readiness Analysis System
+      designed to bridge the gap between engineering curriculum and
+      industry expectations. Created by Amisha Mahajan, Aryan Bhosale, Maithily Tembhurne and Pranav Borse of MMCOE, AIDS Department, CATALYST analyzes student academic records,
+      coding proficiency, technical skills, aptitude abilities, and
+      extra-curricular achievements and provides students and
+      placement coordinators with actionable insights to maximize
+      placement outcomes.
+    </p>
+
+  </div>
+</section>
+
+{% endblock %}

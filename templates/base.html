@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block title %}CATALYST{% endblock %}</title>
+
+  <!-- CATALYST Favicon -->
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="{{ url_for('static', filename='catalyst-favicon.svg') }}"
+  >
+
+  <link
+    rel="shortcut icon"
+    type="image/svg+xml"
+    href="{{ url_for('static', filename='catalyst-favicon.svg') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+
+      <a href="{{ url_for('home') }}" class="brand-logo">
+
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 32 32"
+          fill="none"
+          style="margin-right: -4px;"
+        >
+          <path
+            d="M16 2 C16 10 10 16 2 16
+               C10 16 16 22 16 30
+               C16 22 22 16 30 16
+               C22 16 16 10 16 2 Z"
+            fill="#1B2D21"
+          />
+        </svg>
+
+        <span class="gradient-text">CATALYST</span>
+        <span class="brand-badge">Placement Portal</span>
+
+      </a>
+
+      <ul class="nav-links">
+
+        <li>
+          <a
+            href="{{ url_for('home') }}"
+            class="nav-link {% if request.endpoint == 'home' %}active{% endif %}"
+          >
+            Home
+          </a>
+        </li>
+
+        <li>
+          <a
+            href="{{ url_for('home') }}#about"
+            class="nav-link"
+          >
+            About
+          </a>
+        </li>
+
+        <li>
+          <a
+            href="{{ url_for('home') }}#how-it-works"
+            class="nav-link"
+          >
+            How It Works
+          </a>
+        </li>
+
+        <li>
+          <a
+            href="{{ url_for('home') }}#features"
+            class="nav-link"
+          >
+            Features
+          </a>
+        </li>
+
+        {% if current_user.id %}
+          <li>
+            <a
+              href="{{ url_for('dashboard') }}"
+              class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}"
+            >
+              Dashboard
+            </a>
+          </li>
+        {% endif %}
+
+      </ul>
+
+      <div class="nav-actions">
+
+        {% if current_user.id %}
+
+          <span style="font-size: 0.9rem; color: var(--text-secondary);">
+            👤 {{ current_user.name }}
+          </span>
+
+          <a
+            href="{{ url_for('logout') }}"
+            class="btn btn-secondary"
+            style="padding: 8px 16px;"
+          >
+            Logout
+          </a>
+
+        {% else %}
+
+          <a
+            href="{{ url_for('login') }}"
+            class="btn btn-secondary"
+          >
+            Login
+          </a>
+
+          <a
+            href="{{ url_for('register') }}"
+            class="btn btn-primary"
+          >
+            Register
+          </a>
+
+        {% endif %}
+
+      </div>
+
+    </div>
+  </nav>
+
+
+  <!-- Flash Messages -->
+  <div
+    class="container"
+    style="margin-top: 20px;"
+  >
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+      {% if messages %}
+
+        <div class="flash-messages">
+
+          {% for category, message in messages %}
+
+            <div class="alert alert-{{ category }}">
+
+              <span>{{ message }}</span>
+
+              <button
+                onclick="this.parentElement.remove()"
+                style="
+                  background:none;
+                  border:none;
+                  color:inherit;
+                  cursor:pointer;
+                  font-weight:bold;
+                "
+              >
+                &times;
+              </button>
+
+            </div>
+
+          {% endfor %}
+
+        </div>
+
+      {% endif %}
+
+    {% endwith %}
+
+  </div>
+
+
+  <!-- Main Body Content -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+
+  <!-- Footer -->
+  <footer class="footer">
+
+    <div class="container">
+
+      <p>
+        &copy; 2026
+        <strong>CATALYST</strong>
+        Placement Readiness Analysis Platform.
+        All rights reserved.
+      </p>
+
+      <p
+        style="
+          font-size: 0.8rem;
+          margin-top: 6px;
+          color: var(--text-muted);
+        "
+      >
+        Empowering engineering students towards placement success.
+      </p>
+
+    </div>
+
+  </footer>
+
+
+  <!-- JavaScript -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+  {% block scripts %}{% endblock %}
+
+</body>
+</html>
